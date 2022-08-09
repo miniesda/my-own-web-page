@@ -1,0 +1,79 @@
+
+body
+{
+
+
+  cursor: url(imagenes/aaa.png),auto;
+
+
+
+    /* background: url("imagenes/posible logo final.png"); */
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-color: #001a1c;
+    font-family: Montserrat,sans-serif;
+    color: white;
+
+}
+
+.coolButton{
+  background-image: linear-gradient(135deg,#0297a1,#013e42);
+    border-style: solid;
+    border-width: 2px;
+
+  padding: 0.5rem 1rem;
+  line-height: 1;
+
+  text-decoration: none;
+  color:white;
+  font-size: 100%;
+  display:inline-block;
+}
+
+.borderButton{
+  border-style: solid;
+  border-width: 2px;
+  color: white;
+  padding: 0.5rem 1rem;
+  line-height: 1;
+  display:table-caption;
+}
+h1
+{
+  font-size: 500%;
+  /* text-align: center; */
+  text-shadow: 1px 1px 0px #242424;
+  font-family:sans-serif;
+  color: white;
+}
+
+h2{
+  font-size: 220%;
+}
+
+.name{
+  font-family: cursive;
+  font-size: 160%;
+  color: #0297a1;
+}
+.biggerh2{
+  font-size: 260%;
+}
+.biggerp{
+  font-size: 160%;
+}
+.underscore{
+  /*text-decoration: underline;*/
+  font-weight: bold;
+  color: #0297a1;
+}
+p{
+  font-size: 110%;
+  margin-right: 5%;
+  margin-left: 5%;
+}
+
+img{
+  margin-left: 10%;
+  margin-right: 10%;
+}
