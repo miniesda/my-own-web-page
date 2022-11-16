@@ -2,7 +2,7 @@
 body
 {
 
-  cursor: url(imagenes/aaa.png),auto;
+  cursor: url("imagenes/aaa.png"),auto;
 
     /* background: url("imagenes/posible logo final.png"); */
     background-repeat: no-repeat;
@@ -76,8 +76,13 @@ p{
 }
 
 img{
-  
+
   margin-left: 1%;
   margin-right: 1%;
-  cursor: url(imagenes/gatoSalvado.png),pointer; 
+
+}
+a{
+  cursor: url("imagenes/gatoSalvado.png"),pointer;
+  /*cursor: url("imagenes/aaa.png"),pointer;*/
+
 }
