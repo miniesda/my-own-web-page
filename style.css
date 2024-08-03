@@ -1,7 +1,5 @@
-
 body
 {
-
   cursor: url("imagenes/cursor.png"),auto;
 
     /* background: url("imagenes/posible logo final.png"); */
@@ -10,8 +8,6 @@ body
     background-color: #001a1c;
     font-family: Montserrat,sans-serif;
     color: white;
-
-
 }
 a{
   cursor: url("imagenes/cursor-hand.png"),auto;
