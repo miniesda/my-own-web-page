@@ -10,7 +10,7 @@ body
     color: white;
 }
 a{
-  cursor: url("imagenes/cursor-hand.png"),auto;
+  cursor: url("imagenes/cursor-hand.png"),pointer;
 }
 
 .header-image {
@@ -80,8 +80,4 @@ img{
   margin-right: 1%;
 
 }
-a{
-  cursor: url("imagenes/gatoSalvado.png"),pointer;
-  /*cursor: url("imagenes/aaa.png"),pointer;*/
 
-}
