@@ -2,7 +2,7 @@
 body
 {
 
-  cursor: url("imagenes/aaa.png"),auto;
+  cursor: url("imagenes/cursor.png"),auto;
 
     /* background: url("imagenes/posible logo final.png"); */
     background-repeat: no-repeat;
@@ -12,6 +12,9 @@ body
     color: white;
 
 
+}
+a{
+  cursor: url("imagenes/cursor-hand.png"),auto;
 }
 
 .header-image {
