@@ -10,8 +10,17 @@
             <a-asset-item id="cakeModel0" src="./cake-1/cake0.glb"></a-asset-item>
         </a-assets>
 
-        <a-entity id="cake" gltf-model="#cakeModel1" position="0 0 0" rotation="0 0 0" scale="0.5 0.5 0.5"></a-entity>
-        <a-entity id="cake1" gltf-model="#cakeModel0" position="0 0 0" rotation="0 0 0" scale="0.5 0.5 0.5"></a-entity>
+        <h1> 
+            Happy Birthday!
+            Click the cake to blow out the candles!
+        </h1>
+
+        <button onclick="document.querySelector('p').style.display = 'block'; document.querySelector('button').style.display = 'none';">
+            <a-entity id="cake" gltf-model="#cakeModel1" position="0 0 0" rotation="0 0 0" scale="0.5 0.5 0.5"></a-entity>
+            <a-entity id="cake1" gltf-model="#cakeModel0" position="0 0 0" rotation="0 0 0" scale="0.5 0.5 0.5"></a-entity>
+        </button>
+        <p display = none> You are old!</p>
+        <a-light type="ambient" color="#445451"></a-light>
         <a-entity camera look-controls="enabled: false" orbit-controls="target: 0 0 0; minDistance: 5; maxDistance: 5; initialPosition: 0 3 5; rotateSpeed: 0.75"></a-entity>
     </a-scene>
   </body>
