@@ -1,22 +1,24 @@
-<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+<html>
+  <head>
+    <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
+  </head>
+  <body>
+    <a-scene>
+        <a-assets>
+            <a-asset-item id="cakeModel1" src="./cake-1/cake1.glb"></a-asset-item>
+            <a-asset-item id="cakeModel0" src="./cake-1/cake0.glb"></a-asset-item>
+        </a-assets>
 
-<model-viewer id="1" alt="Cake" src="./cake-1/cake1.glb" shadow-intensity="1" camera-controls touch-action="pan-y"></model-viewer>
+        <a-entity gltf-model="#cakeModel1" position="0 0 0" rotation="0 0 0" scale="1 1 1"></a-entity>
+    </a-scene>
+  </body>
 
-
-<script>
-
-    let cake1 = document.getElementById("1");
-
-    let currentCake = 1;
-
+  <script>
     setInterval(() => {
-        if (currentCake === 1) {
-            cake1.src = "./cake-1/cake0.glb";
-            currentCake = 0;
-        }
-        else {
-            cake1.src = "./cake-1/cake1.glb";
-            currentCake = 1;
-        }
+        const entity = document.querySelector('a-entity');
+        const currentModel = entity.getAttribute('gltf-model');
+        const newModel = currentModel === '#cakeModel1' ? '#cakeModel0' : '#cakeModel1';
+        entity.setAttribute('gltf-model', newModel);
     }, 1000);
-</script>
+  </script>
+</html>
