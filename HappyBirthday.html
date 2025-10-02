@@ -10,17 +10,22 @@
             <a-asset-item id="cakeModel0" src="./cake-1/cake0.glb"></a-asset-item>
         </a-assets>
 
-        <a-entity id="cake" gltf-model="#cakeModel1" position="0 0 0" rotation="0 0 0" scale="0.25 0.25 0.25"></a-entity>
-        <a-entity camera look-controls="enabled: false" orbit-controls="target: 0 2 0; minDistance: 2; maxDistance: 180; initialPosition: 0 3 5; rotateSpeed: 0.5"></a-entity>
+        <a-entity id="cake" gltf-model="#cakeModel1" position="0 0 -2" rotation="0 0 0" scale="0.5 0.5 0.5"></a-entity>
+        <a-entity camera look-controls="enabled: false" orbit-controls="target: 0 0 0; minDistance: 2; maxDistance: 2; initialPosition: 0 3 5; rotateSpeed: 0.75"></a-entity>
     </a-scene>
   </body>
 
   <script>
+    let cake = document.getElementById('cake');
+    let isCandleLit = true;
+
     setInterval(() => {
-        const entity = document.getElementById('cake');
-        const currentModel = entity.getAttribute('gltf-model');
-        const newModel = currentModel === '#cakeModel1' ? '#cakeModel0' : '#cakeModel1';
-        entity.setAttribute('gltf-model', newModel);
+        if (isCandleLit) {
+            cake.setAttribute('gltf-model', '#cakeModel0');
+        } else {
+            cake.setAttribute('gltf-model', '#cakeModel1');
+        }
+        isCandleLit = !isCandleLit;
     }, 1000);
   </script>
 </html>
