@@ -17,6 +17,7 @@
 
     <hr>
     <h1>Happy Birthday! Swipe to enjoy your 3D Cake</h1>
+    You can click on the cake to get a surprise!
     <a-scene>
         <a-assets>
             <a-asset-item id="cakeModel1" src="./cake-1/cake1.glb"></a-asset-item>
@@ -24,11 +25,14 @@
         </a-assets>
             <a-entity id="cake" class="clickable" gltf-model="#cakeModel1" position="0 0 0" rotation="0 0 0" scale="0.5 0.5 0.5"></a-entity>
             <a-entity id="cake1" class="clickable" gltf-model="#cakeModel0" position="0 0 0" rotation="0 0 0" scale="0.5 0.5 0.5"></a-entity>
-        <a-entity camera orbit-controls="target: 0 0 0; minDistance: 5; maxDistance: 5; initialPosition: -2 3 3; rotateSpeed: 0.75">
+        <a-entity camera orbit-controls="target: 0 0 0; minDistance: 5; maxDistance: 5; initialPosition: -2 3 3; 
+            autoRotate: true; autoRotateSpeed: 0.5; 
+            enableDamping: false; enableRotation: true; 
+            enableZoom: true; zoomSpeed: 0.5; rotateSpeed:0.5;">
             <a-entity cursor="fuse: false; rayOrigin: mouse" raycaster="objects: .clickable"></a-entity>
         </a-entity>
     </a-scene>
-    You can click on the cake to get a surprise!
+    
   </body>
 
   <script>
