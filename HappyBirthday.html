@@ -1,4 +1,26 @@
 <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
 
-<model-viewer alt="Cake" src="./cake-1/cake1.obj" shadow-intensity="1" camera-controls touch-action="pan-y"></model-viewer>
-<model-viewer alt="Cake" src="./cake-1/cake0.obj" shadow-intensity="1" camera-controls touch-action="pan-y"></model-viewer>
+<model-viewer id="1" alt="Cake" src="./cake-1/cake1.obj" shadow-intensity="1" camera-controls touch-action="pan-y"></model-viewer>
+<model-viewer id="2" alt="Cake" src="./cake-1/cake0.obj" shadow-intensity="1" camera-controls touch-action="pan-y"></model-viewer>
+
+
+<script>
+
+    let cake1 = document.getElementById("1");
+    let cake2 = document.getElementById("2");
+
+    cake2.style.display = "none";
+    let currentCake = 1;
+
+    setInterval(() => {
+        if (currentCake === 1) {
+            cake1.style.display = "none";
+            cake2.style.display = "block";
+            currentCake = 2;
+        } else {
+            cake1.style.display = "block";
+            cake2.style.display = "none";
+            currentCake = 1;
+        }
+    }, 1000);
+</script>
