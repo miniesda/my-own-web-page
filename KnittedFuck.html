@@ -12,7 +12,7 @@
         background: radial-gradient(circle, #161616, #030303);
         overflow: hidden;
         text-align: center;
-        color: aqua;
+        color: #D59253;
       }
     </style>
 
@@ -22,8 +22,9 @@
         <a-assets>
             <a-asset-item id="middlefinger" src="./cake-1/middlefinger.glb"></a-asset-item>
         </a-assets>
-            <a-entity id="middle" gltf-model="#middlefinger" position="0 0 0" rotation="0 0 0" scale="0.5 0.5 0.5"></a-entity>
-        <a-entity camera id="cam">
+            <a-entity geometry="primitive: box" material="color: #D59253"></a-entity>
+            <a-entity id="middle" gltf-model="#middlefinger" position="0 0 0" rotation="0 0 0" scale="0.5 0.5 0.5" material="color: #D59253"></a-entity>
+        <a-entity camera rotation="0 0 90" id="cam">
             <a-entity cursor="fuse: false; rayOrigin: mouse" raycaster="objects: .clickable" ></a-entity>
         </a-entity>
     </a-scene>
@@ -32,7 +33,7 @@
         let camera = document.getElementById('cam');
         let speed = -0.75
         setInterval(() => {
-            camera.setAttribute("orbit-controls","target: 0 0 0; minDistance: 5; maxDistance: 5; initialPosition: -2 3 3; autoRotate: true; enableDamping: false; autoRotateSpeed: " + speed);
+            camera.setAttribute("orbit-controls","target: 0 0 0; minDistance: 5; maxDistance: 5; initialPosition: 0 0 3; autoRotate: true; enableDamping: false; autoRotateSpeed: " + speed);
             speed = speed * -1
         }, 1000);
     </script>
