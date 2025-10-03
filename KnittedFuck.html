@@ -23,10 +23,7 @@
             <a-asset-item id="middlefinger" src="./cake-1/middlefinger.glb"></a-asset-item>
         </a-assets>
             <a-entity id="middle" gltf-model="#middlefinger" position="0 0 0" rotation="0 0 0" scale="0.5 0.5 0.5"></a-entity>
-        <a-entity camera orbit-controls="target: 0 0 0; minDistance: 5; maxDistance: 5; initialPosition: -2 3 3; 
-            autoRotate: true; 
-            enableDamping: false; enableRotation: true; 
-            enableZoom: true; zoomSpeed: 0.5; rotateSpeed:0.75;" id="cam">
+        <a-entity camera id="cam">
             <a-entity cursor="fuse: false; rayOrigin: mouse" raycaster="objects: .clickable" ></a-entity>
         </a-entity>
     </a-scene>
