@@ -30,7 +30,7 @@
 
     <script>
         let camera = document.getElementById('cam');
-        let speed = -0.75
+        let speed = -2
         setInterval(() => {
             camera.setAttribute("orbit-controls","target: 0 0 0; minDistance: 5; maxDistance: 5; initialPosition: 0 0 3; autoRotate: true; enableDamping: false; autoRotateSpeed: " + speed);
             speed = speed * -1
