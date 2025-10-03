@@ -34,7 +34,7 @@
         let camera = document.getElementById('camera');
         let speed = -0.75
         setInterval(() => {
-            camera.setAttribute(orbit-controls, "target: 0 0 0; minDistance: 5; maxDistance: 5; initialPosition: -2 3 3; rotation: 0 45 0; autoRotate: true; autoRotateSpeed: 0.5; enableDamping: false; enableRotation: true; enableZoom: true; zoomSpeed: 0.5; rotateSpeed: " + speed + ";")
+            camera.setAttribute("orbit-controls", "target: 0 0 0; minDistance: 5; maxDistance: 5; initialPosition: -2 3 3; rotation: 0 45 0; autoRotate: true; autoRotateSpeed: 0.5; enableDamping: false; enableRotation: true; enableZoom: true; zoomSpeed: 0.5; rotateSpeed: " + speed + ";")
             speed = speed * -1
         }, 1000);
     </script>
