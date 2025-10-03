@@ -23,18 +23,19 @@
             <a-asset-item id="middlefinger" src="./cake-1/middlefinger.glb"></a-asset-item>
         </a-assets>
             <a-entity id="middle" gltf-model="#middlefinger" position="0 0 0" rotation="0 0 0" scale="0.5 0.5 0.5"></a-entity>
-        <a-entity camera orbit-controls="target: 0 0 0; minDistance: 5; maxDistance: 5; initialPosition: -2 3 3; rotation: 0 45 0;
-            autoRotate: true; autoRotateSpeed: 0.5; 
+        <a-entity camera orbit-controls="target: 0 0 0; minDistance: 5; maxDistance: 5; initialPosition: -2 3 3; 
+            autoRotate: true; 
             enableDamping: false; enableRotation: true; 
-            enableZoom: true; zoomSpeed: 0.5; rotateSpeed:0.75;" id="camera">
+            enableZoom: true; zoomSpeed: 0.5; rotateSpeed:0.75;" id="cam">
+            <a-entity cursor="fuse: false; rayOrigin: mouse" raycaster="objects: .clickable" ></a-entity>
         </a-entity>
     </a-scene>
 
     <script>
-        let camera = document.getElementById('camera');
+        let camera = document.getElementById('cam');
         let speed = -0.75
         setInterval(() => {
-            camera.setAttribute("orbit-controls", "target: 0 0 0; minDistance: 5; maxDistance: 5; initialPosition: -2 3 3; rotation: 0 45 0; autoRotate: true; autoRotateSpeed: 0.5; enableDamping: false; enableRotation: true; enableZoom: true; zoomSpeed: 0.5; rotateSpeed: " + speed + ";")
+            camera.setAttribute("orbit-controls","target: 0 0 0; minDistance: 5; maxDistance: 5; initialPosition: -2 3 3; autoRotate: true; enableDamping: false; enableRotation: true; enableZoom: true; zoomSpeed: 0.5; rotateSpeed:0.75; autoRotateSpeed: " + speed);
             speed = speed * -1
         }, 1000);
     </script>
