@@ -1,33 +1,20 @@
 <html>
     <head>
-        <script
-            type="module"
-            id="procaptcha-script"
-            src="https://js.prosopo.io/js/procaptcha.bundle.js"
-            async
-            defer
-        ></script>
+    <script src="https://www.google.com/recaptcha/enterprise.js?render=6LdGKN4rAAAAAM_giNSXqcNnh5P9lQhZ8DJ1_UI_"></script>
+    <!-- Your code -->
     </head>
+
     <body>
-        <div id="procaptcha-container"></div>
+        <button class="g-recaptcha"
+            data-sitekey="6LdGKN4rAAAAAM_giNSXqcNnh5P9lQhZ8DJ1_UI_"
+            data-callback='onSubmit'
+            data-action='submit'>
+        Submit
+        </button>
     </body>
-
     <script>
-    document.getElementById('procaptcha-script').addEventListener('load', function () {
-        // Define a callback function to be called when the CAPTCHA is verified
-        function onCaptchaVerified(output) {
-            console.log('Captcha verified, output: ' + JSON.stringify(output))
+        function onSubmit(token) {
+            document.getElementById("demo-form").submit();
         }
-
-        // Get the Element using elementId
-        const captchaContainer = document.getElementById('procaptcha-container')
-        // Render the CAPTCHA explicitly on a container with id "procaptcha-container"
-            window.procaptcha.render(captchaContainer, {
-                siteKey: '5DU6ri1aYXPwNUrAgvoXj9aVHRWRmEbDKLY8cSHRmR6F8ghG',
-                theme: 'dark',
-                callback: onCaptchaVerified,
-                captchaType: "image"
-            })
-    })
     </script>
 </html>
