@@ -28,6 +28,8 @@ background-image: url(“imagenes/logo.png”);
   color:white;
   font-size: 100%;
   display:inline-block;
+  text-align: center;
+  margin: 0.5rem auto;   /* centers inside flex/blocks */
 }
 
 .borderButton{
@@ -73,10 +75,16 @@ p{
   margin-left: 5%;
 }
 
+td {
+  text-align: center;    /* centers all text and inline-blocks in that column */
+  vertical-align: middle;
+}
+
 img{
 
   margin-left: 1%;
   margin-right: 1%;
 
 }
+
 
