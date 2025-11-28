@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+<body style="margin:0; overflow:hidden; background:black;"></body>
+
+<script src="https://unpkg.com/three@0.103.0/build/three.js"></script>
+<script src="https://unpkg.com/three@0.103.0/examples/js/loaders/OBJLoader.js"></script>
+<script src="https://unpkg.com/three@0.103.0/examples/js/loaders/MTLLoader.js"></script>
+
+<script>
+/* ---------------- CONFIG ---------------- */
+const SCALE = 4;
+
+/* ---------------- SIZES ---------------- */
+let smallWidth  = Math.floor(window.innerWidth  / SCALE);
+let smallHeight = Math.floor(window.innerHeight / SCALE);
+
+/* ---------------- THREE SETUP ---------------- */
+const scene = new THREE.Scene();
+
+const camera = new THREE.PerspectiveCamera(
+  45,
+  smallWidth / smallHeight,
+  1,
+  2000
+);
+camera.position.z = 100;
+
+scene.add(new THREE.AmbientLight(0xaaaaaa));
+const dir = new THREE.DirectionalLight(0xffffff, 1);
+dir.position.set(0,0,1);
+scene.add(dir);
+
+/* ---------------- LOW-RES RENDER TARGET ---------------- */
+const rt = new THREE.WebGLRenderTarget(smallWidth, smallHeight);
+
+/* ---------------- RENDERER ---------------- */
+const renderer = new THREE.WebGLRenderer({ antialias:false, alpha:true });
+renderer.setSize(smallWidth, smallHeight);
+renderer.domElement.style.display = "none"; // hide native canvas
+document.body.appendChild(renderer.domElement);
+
+/* ---------------- FINAL UPSCALE CANVAS ---------------- */
+const canvas = document.createElement("canvas");
+canvas.width  = smallWidth  * SCALE;
+canvas.height = smallHeight * SCALE;
+canvas.style.width  = window.innerWidth  + "px";
+canvas.style.height = window.innerHeight + "px";
+
+const ctx = canvas.getContext("2d");
+ctx.imageSmoothingEnabled = false;
+
+document.body.appendChild(canvas);
+
+/* ---------------- MOUSE ---------------- */
+let mouseX = 0, mouseY = 0;
+document.addEventListener("mousemove", e => {
+  mouseX = -(e.clientX - innerWidth  / 2) / SCALE;
+  mouseY = (e.clientY - innerHeight / 2) / SCALE;
+});
+
+/* ---------------- LOAD OBJ ---------------- */
+const manager = new THREE.LoadingManager();
+
+    const objLoader = new THREE.OBJLoader(manager);
+
+    objLoader.load(
+      "https://raw.githubusercontent.com/miniesda/my-own-web-page/main/cake-1/Главный%20стол%2BПК.obj",
+      (object) => {
+
+        object.traverse(child => {
+          if (child.isMesh) {
+            child.material.side = THREE.DoubleSide;
+            child.geometry.computeVertexNormals();
+          }
+        });
+
+        object.scale.set(10, 10, 10);
+        object.position.y = 20;
+        object.position.x = 30;
+        object.rotation.x = Math.PI;
+        scene.add(object);
+      },
+      undefined,
+      (err) => console.error("OBJ load error:", err)
+    );
+
+/* ---------------- FRAMEBUFFER ---------------- */
+const frameBuffer = new Uint8Array(smallWidth * smallHeight * 4);
+
+/* ---------------- ANIMATION LOOP ---------------- */
+function animate(){
+  requestAnimationFrame(animate);
+
+  camera.position.x += (mouseX - camera.position.x) * 0.05;
+  camera.position.y += (-mouseY - camera.position.y) * 0.05;
+  camera.lookAt(scene.position);
+
+  // render LOW RES into render target
+  renderer.setRenderTarget(rt);
+  renderer.render(scene, camera);
+  renderer.setRenderTarget(null);
+
+  // read pixels
+  renderer.readRenderTargetPixels(rt, 0, 0, smallWidth, smallHeight, frameBuffer);
+
+  // draw pixels to canvas (1:1)
+  const img = new ImageData(
+    new Uint8ClampedArray(frameBuffer),
+    smallWidth,
+    smallHeight
+  );
+
+  const temp = document.createElement("canvas");
+  temp.width = smallWidth;
+  temp.height = smallHeight;
+  temp.getContext("2d").putImageData(img, 0, 0);
+
+  // upscale with NO smoothing
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.drawImage(temp, 0, 0, canvas.width, canvas.height);
+}
+
+animate();
+</script>
+</html>
