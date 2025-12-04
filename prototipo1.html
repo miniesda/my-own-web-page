@@ -9,25 +9,12 @@
     <script src="https://jeromeetienne.github.io/AR.js/aframe/build/aframe-ar.js"></script>
 </head>
 
-<body style="margin: 0; overflow: hidden;">
-
-    <a-scene embedded arjs="sourceType: webcam;">
-        
-        <!-- Hiro Marker -->
-        <a-marker preset="hiro">
-
-            <!-- Blue Box -->
-            <a-box 
-                position="0 0.1 0"
-                material="color: blue;">
-            </a-box>
-
-        </a-marker>
-
-        <!-- Camera -->
-        <a-entity camera></a-entity>
-
-    </a-scene>
-
+<body style='margin : 0px; overflow: hidden;'>
+  <a-scene embedded arjs='sourceType: webcam;'>
+    <a-marker type='pattern' url='http://examples.org/hiro.patt'>
+        <a-box position='0 0.5 0' material='color: blue;'></a-box>
+    </a-marker>
+  </a-scene>
+  <a-entity camera></a-entity>
 </body>
 </html>
