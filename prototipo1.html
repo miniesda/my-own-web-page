@@ -3,35 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sample HTML Document</title>
+    <title>AR with A-Frame</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="https://jeromeetienne.github.io/AR.js/aframe/build/aframe-ar.js"></script>
 </head>
-<body>
-    <script>
-    document.addEventListener('DOMContentLoaded', function (event) {
-        var scene = document.createElement('a-scene');
-        scene.setAttribute('embedded', '');
-        scene.setAttribute('arjs', 'sourceType: webcam;');
 
-        var marker = document.createElement('a-marker');
-        marker.setAttribute('preset', 'hiro');
+<body style="margin: 0; overflow: hidden;">
 
-        var box = document.createElement('a-box');
-        box.setAttribute('position', '0 0 0');
-        box.setAttribute('material', 'color: blue;');
+    <a-scene embedded arjs="sourceType: webcam;">
+        
+        <!-- Hiro Marker -->
+        <a-marker preset="hiro">
 
-        marker.appendChild(box);
-        scene.appendChild(marker);
+            <!-- Blue Box -->
+            <a-box 
+                position="0 0.1 0"
+                material="color: blue;">
+            </a-box>
 
-        var camera = document.createElement('a-entity');
-        camera.setAttribute('camera', '');
-        scene.appendChild(camera);
+        </a-marker>
 
-        document.body.appendChild(scene);
-    });
-    </script>
+        <!-- Camera -->
+        <a-entity camera></a-entity>
+
+    </a-scene>
 
 </body>
 </html>
