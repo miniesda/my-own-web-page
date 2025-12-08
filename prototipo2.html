@@ -4,7 +4,6 @@
     <meta charset="utf-8">
     <title>Train AR Example</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-aframe.prod.js"></script>
   </head>
   <body style="overflow: hidden;">
@@ -12,10 +11,8 @@
     <a-scene
       id="arScene"
       mindar-image="imageTargetSrc: assets-prototipos/plano-metro-sevilla-web.mind;"
-      arjs="trackingMethod: best; sourceType: webcam;"
       embedded
       renderer="logarithmicDepthBuffer: true;"
-      style="display: block"
     >
 
       <a-camera id="camera" position="0 0 0"></a-camera>
@@ -25,16 +22,6 @@
       </a-entity>
 
     </a-scene>
-
-    <script>
-      const overlay = document.getElementById("startOverlay");
-      const scene = document.getElementById("arScene");
-
-      overlay.addEventListener("click", () => {
-        overlay.style.display = "none";
-        scene.style.display = "block";
-      });
-    </script>
 
   </body>
 </html>
