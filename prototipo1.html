@@ -15,7 +15,11 @@
                 justify-content: center; align-items: center;
                 background: rgba(0,0,0,0.7); cursor: pointer; text-align: center;">
         
-        <p style="color: white; font-size: 1.5em;">Please take a seat and place the QR in the center of the screen</p>
+        <p style="color: white; font-size: 1.5em;">
+            Please take a seat
+            and place the QR in 
+            the center of the screen
+        </p>
       <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://http://127.0.0.1:5500/prototipo1.html" 
        alt="Scan QR" 
        style="display:block; margin:auto; opacity: 0.5;">
@@ -30,19 +34,19 @@
 
         <a-entity id="train" 
                     gltf-model="https://s3-eu-west-1.amazonaws.com/fetchcfd/original/file-1571063936882.glb" 
-                    position="-2 -0.75 -5" 
+                    position="-2 -0.75 -8" 
                     rotation="0 90 0"
                     scale="4 4 4">
         </a-entity>
         <a-entity id="person" 
                     gltf-model="https://threejs.org/examples/models/gltf/Soldier.glb" 
-                    position="1.1 -1.5 -3" 
+                    position="1.1 -1.5 -5" 
                     rotation="0 180 0"
                     scale="0.5 0.5 0.5">
         </a-entity>
         <a-plane 
             rotation="-90 0 0"
-            position="0 -1.5 -3"
+            position="0 -1.5 -2"
             scale="100 10 10"
             color="#FFF">
         </a-plane>
@@ -50,7 +54,7 @@
         "Hola, soy tu historiador
         del metro, hoy aprenderemos
         historia de la Linea 1"
-            position="0 -0.5 -4" 
+            position="0 -0.5 -5" 
             rotation="0 0 0" 
             color="#FFF"
             aling="center"
