@@ -34,41 +34,46 @@
         <img id="suelo" src="https://t4.ftcdn.net/jpg/03/58/63/43/360_F_358634341_Q9T97z401tGXk9L24Q7W61LMaBi5IYXY.jpg" />
       </a-assets>
 
-      <a-camera id="camera" position="0 0 0"></a-camera>
+      <a-entity id="cameraRig">
+        <a-camera id="camera" position="0 0 0"></a-camera>
+      </a-entity>
 
-        <a-entity id="train" 
-                    gltf-model="https://s3-eu-west-1.amazonaws.com/fetchcfd/original/file-1571063936882.glb" 
-                    rotation="0 90 0"
-                    scale="10 10 10">
-        </a-entity>
-        <a-entity id="person" 
-                    gltf-model="https://threejs.org/examples/models/gltf/Soldier.glb" 
-                    rotation="0 180 0"
-                    scale="1 1 1">
-        </a-entity>
-        <a-plane 
-            id="plane1"
-            rotation="-90 180 0"
-            scale="100 20 1"
-            material="src:#suelo; repeat:100 20">
-        </a-plane>
-        <a-plane 
-            id="plane2"
-            rotation="-90 0 0"
-            scale="100 1 1"
-            material="src:#suelo-borde; repeat:100 1"
-            color="yellow">
-        </a-plane>
-        <a-text value=
-        "Hola, soy tu historiador
-        del metro, hoy aprenderemos
-        historia de la Linea 1"
-            id="text1"
-            rotation="0 0 0" 
-            color="#FFF"
-            aling="center"
-            scale="0.5 0.5 0.5">
-        </a-text>
+      <a-entity id="train"
+                gltf-model="https://s3-eu-west-1.amazonaws.com/fetchcfd/original/file-1571063936882.glb" 
+                rotation="0 90 0"
+                scale="10 10 10"
+                position="-5 -0 -20">
+      </a-entity>
+      <a-entity id="person" 
+                gltf-model="https://threejs.org/examples/models/gltf/Soldier.glb" 
+                rotation="0 180 0"
+                scale="1 1 1"
+                position="1.1 -1.5 -10">
+      </a-entity>
+      <a-plane id="plane1"
+                rotation="-90 180 0"
+                scale="100 20 1"
+                position="0 -1.5 -7"
+                material="src:#suelo; repeat:100 20">
+      </a-plane>
+      <a-plane id="plane2"
+                rotation="-90 0 0"
+                scale="100 1 1"
+                position="0 -1.45 -17"
+                material="src:#suelo-borde; repeat:100 1"
+                color="yellow">
+      </a-plane>
+      <a-text value=
+      "Hola, soy tu historiador
+      del metro, hoy aprenderemos
+      historia de la Linea 1"
+              id="text1"
+              rotation="0 0 0" 
+              color="#FFF"
+              aling="center"
+              scale="0.5 0.5 0.5"
+              position="-1 -0.5 -10">
+      </a-text>
 
     </a-scene>
 
@@ -81,35 +86,20 @@
         overlay.style.display = "none";
         scene.style.display = "block";
 
-        camera.object3D.updateMatrixWorld();
-        const camMatrix = camera.object3D.matrixWorld.clone();
+        const rig = document.getElementById("cameraRig").object3D;
+        const cam = document.getElementById("camera").object3D;
 
-        const invCamMatrix = new THREE.Matrix4().copy(camMatrix).invert();
+        // Update AR.js camera pose before reading it
+        cam.updateMatrixWorld();
 
-        const train = document.getElementById("train").object3D;
-        const person = document.getElementById("person").object3D;
-        const plane1 = document.getElementById("plane1").object3D;
-        const plane2 = document.getElementById("plane2").object3D;
-        const text1 = document.getElementById("text1").object3D;
+        // Get camera orientation at the moment of the click
+        const camQuat = cam.quaternion.clone();
 
-        const offsets = {
-            train: new THREE.Vector3(-5, -0, -20),
-            person: new THREE.Vector3(1.1, -1.5, -10),
-            plane1: new THREE.Vector3(0, -1.5, -7),
-            plane2: new THREE.Vector3(0, -1.45, -17),
-            text1: new THREE.Vector3(-1, -0.5, -10),
-        };
+        // Invert it — this cancels the current camera rotation
+        const correctionQuat = camQuat.invert();
 
-        const apply = (obj, offset) => {
-        const worldPos = offset.clone().applyMatrix4(invCamMatrix);
-        obj.position.copy(worldPos);
-        };
-
-        apply(train, offsets.train);
-        apply(person, offsets.person);
-        apply(plane1, offsets.plane1);
-        apply(plane2, offsets.plane2);
-        apply(text1, offsets.text1);
+        // Apply correction to the rig (not the camera!)
+        rig.quaternion.copy(correctionQuat);
 
       });
     </script>

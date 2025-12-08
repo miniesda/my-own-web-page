@@ -34,41 +34,17 @@
         <img id="suelo" src="https://t4.ftcdn.net/jpg/03/58/63/43/360_F_358634341_Q9T97z401tGXk9L24Q7W61LMaBi5IYXY.jpg" />
       </a-assets>
 
-      <a-camera id="camera" position="0 0 0"></a-camera>
+      <a-camera id="camera"></a-camera>
 
-        <a-entity id="train" 
-                    gltf-model="https://s3-eu-west-1.amazonaws.com/fetchcfd/original/file-1571063936882.glb" 
-                    rotation="0 90 0"
-                    scale="10 10 10">
-        </a-entity>
-        <a-entity id="person" 
-                    gltf-model="https://threejs.org/examples/models/gltf/Soldier.glb" 
-                    rotation="0 180 0"
-                    scale="1 1 1">
-        </a-entity>
-        <a-plane 
-            id="plane1"
-            rotation="-90 180 0"
-            scale="100 20 1"
-            material="src:#suelo; repeat:100 20">
-        </a-plane>
-        <a-plane 
-            id="plane2"
-            rotation="-90 0 0"
-            scale="100 1 1"
-            material="src:#suelo-borde; repeat:100 1"
-            color="yellow">
-        </a-plane>
-        <a-text value=
-        "Hola, soy tu historiador
-        del metro, hoy aprenderemos
-        historia de la Linea 1"
-            id="text1"
-            rotation="0 0 0" 
-            color="#FFF"
-            aling="center"
-            scale="0.5 0.5 0.5">
-        </a-text>
+        <a-nft
+        type="nft"
+        url="./assets-prototipos/plano-metro-sevilla-web"
+        smooth="true"
+        smoothCount="10"
+        smoothTolerance=".01"
+        smoothThreshold="5">
+          <a-box position="0 0 0" color="red"></a-box>
+      </a-nft>
 
     </a-scene>
 
