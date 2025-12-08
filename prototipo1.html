@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-  <title>AR World Tracking + Dead-Reckoning</title>
+  <title>AR World Tracking</title>
 
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
@@ -12,38 +12,48 @@
 
 <body>
 <a-scene
-    embedded
-    vr-mode-ui="enabled: false"
-    arjs="sourceType: webcam; detectionMode: mono_and_matrix; matrixCodeType: 3x3;">
+  embedded
+  vr-mode-ui="enabled: false"
+  arjs="sourceType: webcam; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
+>
     <a-marker id="marker" preset="kanji"></a-marker>
 
-    <a-box id="cubo" color="red" visible="false" scale="0.2 0.2 0.2" freeze-on-detect></a-box>
+    <a-box id="cubo"
+           visible="false"
+           scale="1 1 1"
+           color="red"
+           place-once-from-marker>
+    </a-box>
 
-    <a-entity id="cameraRig">
-      <a-entity camera></a-entity>
-    </a-entity>
+    <a-entity camera></a-entity>
 </a-scene>
 
 <script>
-  AFRAME.registerComponent('freeze-on-detect', {
-    init: function () {
-      const marker = document.querySelector('#marker');
-      const cube = document.querySelector('#cubo');
+AFRAME.registerComponent('place-once-from-marker', {
+  init: function () {
+    const marker = document.querySelector('#marker');
+    const object = this.el;
 
-      marker.addEventListener('markerFound', () => {
-        // Obtener posición y rotación absolutas del marcador
-        const markerPos = marker.object3D.getWorldPosition(new THREE.Vector3());
-        const markerRot = marker.object3D.getWorldQuaternion(new THREE.Quaternion());
+    marker.addEventListener('markerFound', () => {
 
-        // Colocar el cubo en esa posición del mundo
-        cube.object3D.position.copy(markerPos);
-        cube.object3D.quaternion.copy(markerRot);
+      // Obtener posición y rotación global del marcador
+      const pos = marker.object3D.getWorldPosition(new THREE.Vector3());
+      const rot = marker.object3D.getWorldQuaternion(new THREE.Quaternion());
 
-        // Hacerlo visible
-        cube.setAttribute('visible', true);
-      });
-    }
-  });
+      // Colocar el objeto en esa posición del mundo
+      object.object3D.position.copy(pos);
+      object.object3D.quaternion.copy(rot);
+
+      // Hacerlo visible
+      object.setAttribute('visible', true);
+
+      if (object.parentElement === marker) {
+        marker.removeChild(object);
+        document.querySelector('a-scene').appendChild(object);
+      }
+    });
+  }
+});
 </script>
 </body>
 </html>
