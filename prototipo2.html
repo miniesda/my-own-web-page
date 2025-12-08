@@ -24,22 +24,18 @@
         style="display:block; margin:auto; opacity: 0.5;">
     </div>
 
-    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false" 
-             vr-mode-ui="enabled: false" 
-             id="arScene" 
-             style="display: none;">
+    <a-scene
+      mindar-image="imageTargetSrc: assets-prototipos/plano-metro-sevilla-web.mind;"
+      arjs="trackingMethod: best; sourceType: webcam;"
+      embedded
+      renderer="logarithmicDepthBuffer: true;"
+    >
 
-      <a-camera id="camera"></a-camera>
+      <a-camera id="camera" position="0 0 0"></a-camera>
 
-        <a-nft
-        type="nft"
-        url="assets-prototipos/plano-metro-sevilla-web"
-        smooth="true"
-        smoothCount="10"
-        smoothTolerance=".01"
-        smoothThreshold="5">
-          <a-box position="0 0 0" color="red" scale="1 1 1"></a-box>
-        </a-nft>
+      <a-entity mindar-image-target="targetIndex: 0">
+        <a-box position="0 0.5 0" material="color: red;"></a-box>
+      </a-entity>
 
     </a-scene>
 
