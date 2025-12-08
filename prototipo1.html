@@ -33,15 +33,15 @@
 
         <a-entity id="train" 
                     gltf-model="https://s3-eu-west-1.amazonaws.com/fetchcfd/original/file-1571063936882.glb" 
-                    position="-2 -0.9 -8" 
+                    position="-2 -0.5 -10" 
                     rotation="0 90 0"
-                    scale="4 4 4">
+                    scale="10 10 10">
         </a-entity>
         <a-entity id="person" 
                     gltf-model="https://threejs.org/examples/models/gltf/Soldier.glb" 
                     position="1.1 -1.5 -5" 
                     rotation="0 180 0"
-                    scale="0.5 0.5 0.5">
+                    scale="1 1 1">
         </a-entity>
         <a-plane 
             id="plane1"
@@ -88,10 +88,10 @@
 
         // Tu offset original respecto al centro de escena
         const offsets = {
-            train: new THREE.Vector3(-2, -0.9, -8),
+            train: new THREE.Vector3(-2, -0.5, -10),
             person: new THREE.Vector3(1.1, -1.5, -5),
             plane1: new THREE.Vector3(0, -1.5, -1.5),
-            text1: new THREE.Vector3(0, -0.5, -5),
+            text1: new THREE.Vector3(-1, -0.5, -5),
         };
 
         // Aplicar posiciones relativas
