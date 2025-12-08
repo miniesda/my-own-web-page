@@ -81,17 +81,21 @@
         overlay.style.display = "none";
         scene.style.display = "block";
 
-        camera.object3D.updateMatrixWorld();
-        const camMatrix = camera.object3D.matrixWorld.clone();
+        // Dirección hacia donde mira la cámara
+        const dir = new THREE.Vector3();
+        camera.object3D.getWorldDirection(dir);
 
-        const invCamMatrix = new THREE.Matrix4().copy(camMatrix).invert();
+        // Posición base frente al usuario
+        const basePos = camera.object3D.position.clone()
 
+        // Objetos
         const train = document.getElementById("train").object3D;
         const person = document.getElementById("person").object3D;
         const plane1 = document.getElementById("plane1").object3D;
         const plane2 = document.getElementById("plane2").object3D;
         const text1 = document.getElementById("text1").object3D;
 
+        // Tu offset original respecto al centro de escena
         const offsets = {
             train: new THREE.Vector3(-5, -0, -20),
             person: new THREE.Vector3(1.1, -1.5, -10),
@@ -100,18 +104,14 @@
             text1: new THREE.Vector3(-1, -0.5, -10),
         };
 
-        const apply = (obj, offset) => {
-        const worldPos = offset.clone().applyMatrix4(invCamMatrix);
-        obj.position.copy(worldPos);
-        };
+        // Aplicar posiciones relativas
+        train.position.copy(basePos.clone().add(offsets.train));
+        person.position.copy(basePos.clone().add(offsets.person));
+        plane1.position.copy(basePos.clone().add(offsets.plane1));
+        plane2.position.copy(basePos.clone().add(offsets.plane2));
+        text1.position.copy(basePos.clone().add(offsets.text1));
 
-        apply(train, offsets.train);
-        apply(person, offsets.person);
-        apply(plane1, offsets.plane1);
-        apply(plane2, offsets.plane2);
-        apply(text1, offsets.text1);
-
-      });
+    });
     </script>
   </body>
 </html>
