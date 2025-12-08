@@ -1,25 +1,17 @@
- <!DOCTYPE html>
-<html>
-    <head>
-        <title>AR.js A-Frame Example</title>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    </head>
-    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+<!DOCTYPE html>
+<head>
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<title>Prototype 1</title>
+    <script src="https://aframe.io/releases/0.6.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
-    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
-    <body style="margin : 0px; overflow: hidden;">
-        <a-scene
-            embedded
-            vr-mode-ui="enabled: false"
-            arjs="sourceType: webcam; trackingMethod: best; debugUIEnabled: false;">
+</head>
 
-        <a-marker preset="kanji">
-            <a-box position='0 0.1 0' material='color: blue;'></a-box>
-        </a-marker>
+<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+<a-scene embedded arjs="detectionMode: mono_and_matrix; matrixCodeType: 5x5;">
+    <a-marker type="barcode" value="100">
+        <a-box position="0 0.1 0" material="color: red;"></a-box>
     </a-marker>
-
-        <a-entity camera></a-entity>
-        </a-scene>
-    </body>
+    
+</a-scene>
+</body>
 </html>
