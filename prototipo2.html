@@ -47,5 +47,16 @@
       </a-nft>
 
     </a-scene>
+
+    <script>
+      const overlay = document.getElementById("startOverlay");
+      const scene = document.getElementById("arScene");
+
+      overlay.addEventListener("click", () => {
+        overlay.style.display = "none";
+        scene.style.display = "block";
+      });
+    </script>
+
   </body>
 </html>

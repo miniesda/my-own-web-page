@@ -80,7 +80,6 @@
     <script>
     const overlay = document.getElementById("startOverlay");
     const scene = document.getElementById("arScene");
-    const camera = document.getElementById("camera");
 
     overlay.addEventListener("click", () => {
         overlay.style.display = "none";
@@ -89,16 +88,12 @@
         const rig = document.getElementById("cameraRig").object3D;
         const cam = document.getElementById("camera").object3D;
 
-        // Update AR.js camera pose before reading it
         cam.updateMatrixWorld();
 
-        // Get camera orientation at the moment of the click
         const camQuat = cam.quaternion.clone();
 
-        // Invert it — this cancels the current camera rotation
         const correctionQuat = camQuat.invert();
 
-        // Apply correction to the rig (not the camera!)
         rig.quaternion.copy(correctionQuat);
 
       });
