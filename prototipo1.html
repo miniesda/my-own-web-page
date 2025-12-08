@@ -17,7 +17,7 @@
     arjs="sourceType: webcam; detectionMode: mono_and_matrix; matrixCodeType: 3x3;">
     <a-marker id="marker" preset="kanji"></a-marker>
 
-    <a-box id="cubo" color="red" visible="false" scale="0.2 0.2 0.2"></a-box>
+    <a-box id="cubo" color="red" visible="false" scale="0.2 0.2 0.2" freeze-on-detect></a-box>
 
     <a-entity id="cameraRig">
       <a-entity camera></a-entity>
@@ -25,156 +25,25 @@
 </a-scene>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const marker = document.querySelector("#marker");
-  const cubo = document.querySelector("#cubo");
-  const scene = document.querySelector("a-scene").object3D;
+  AFRAME.registerComponent('freeze-on-detect', {
+    init: function () {
+      const marker = document.querySelector('#marker');
+      const cube = document.querySelector('#cubo');
 
-  // Estados y poses
-  let worldMode = false; // false = marcador; true = world tracking
-  let lastMarkerPose = { pos: new THREE.Vector3(), rot: new THREE.Euler() };
+      marker.addEventListener('markerFound', () => {
+        // Obtener posición y rotación absolutas del marcador
+        const markerPos = marker.object3D.getWorldPosition(new THREE.Vector3());
+        const markerRot = marker.object3D.getWorldQuaternion(new THREE.Quaternion());
 
-  // Anchor world: punto inicial en world coordinates donde "pegamos" el cubo
-  let worldAnchor = new THREE.Vector3();
-  let worldRotation = new THREE.Euler();
+        // Colocar el cubo en esa posición del mundo
+        cube.object3D.position.copy(markerPos);
+        cube.object3D.quaternion.copy(markerRot);
 
-  // Dead-reckoning: estado de integración
-  let estOffset = new THREE.Vector3();   // offset estimado desde worldAnchor
-  let velocity = new THREE.Vector3();    // velocidad estimada (m/s)
-  let lastAccelTimestamp = null;
-
-  // Device orientation (Euler) → usaremos para rotar el cubo y transformar aceleraciones
-  let deviceEuler = new THREE.Euler();
-  let deviceQuaternion = new THREE.Quaternion();
-
-  // Parámetros de filtrado / calibración (tunea según tu teléfono)
-  const accelScale = 9.81;         // si event.accelerationIncludingGravity está en m/s^2, deja 9.81
-  const accelThreshold = 0.12;     // umbral para ignorar ruido (m/s^2)
-  const accelHighPassAlpha = 0.9;  // filtrado para eliminar gravedad aproximada (0..1) (más alto = elimina menos)
-  const velocityDamping = 0.98;    // atenuación de velocidad por frame (0..1) para reducir drift
-
-  // buffer para filtro de gravedad aproximada (simple)
-  let gravityEstimate = new THREE.Vector3(0, 0, accelScale);
-
-  // Cuando se detecta marcador: volvemos al modo marcador y reseteamos estimadores
-  marker.addEventListener("markerFound", () => {
-    worldMode = false;
-    cubo.setAttribute("visible", true);
-
-    // reset estimación de dead-reckoning
-    estOffset.set(0,0,0);
-    velocity.set(0,0,0);
-    lastAccelTimestamp = null;
-  });
-
-  // Al perder el marcador: tomar la última pose como anchor y pasar a worldMode
-  marker.addEventListener("markerLost", () => {
-    worldMode = true;
-    worldAnchor.copy(lastMarkerPose.pos);
-    worldRotation.copy(lastMarkerPose.rot);
-
-    // asegurarnos que el cubo esté visible
-    cubo.setAttribute("visible", true);
-
-    // iniciamos offsets desde cero (anchor es la última posición real)
-    estOffset.set(0,0,0);
-    velocity.set(0,0,0);
-    lastAccelTimestamp = null;
-  });
-
-  // Device orientation -> actualizar quaternion para transformar vectores
-  window.addEventListener("deviceorientation", (e) => {
-    // alpha: yaw (z), beta: pitch (x), gamma: roll (y)  (grados)
-    const alpha = THREE.MathUtils.degToRad(e.alpha || 0);
-    const beta  = THREE.MathUtils.degToRad(e.beta  || 0);
-    const gamma = THREE.MathUtils.degToRad(e.gamma || 0);
-
-    // NOTE: conversion puede variar entre navegadores; esta convención suele funcionar para WebXR-like
-    deviceEuler.set(beta, alpha, -gamma, 'YXZ'); // prueba 'YXZ' o 'ZXY' si notas rotaciones extrañas
-    deviceQuaternion.setFromEuler(deviceEuler);
-  }, true);
-
-  // Device motion -> integracion de aceleración
-  window.addEventListener("devicemotion", (ev) => {
-    if (!worldMode) return; // solo integrar cuando estamos en worldMode
-
-    const t = ev.timeStamp || Date.now();
-    const acc = ev.accelerationIncludingGravity || ev.acceleration; // fallback
-
-    if (!acc) return;
-
-    // tiempo en segundos desde la última muestra
-    if (lastAccelTimestamp == null) {
-      lastAccelTimestamp = t;
-      return;
-    }
-    const dt = Math.max(0, (t - lastAccelTimestamp) / 1000); // s
-    lastAccelTimestamp = t;
-    if (dt <= 0) return;
-
-    // lectura de aceleración en coordenadas del dispositivo
-    const accDevice = new THREE.Vector3(acc.x || 0, acc.y || 0, acc.z || 0);
-
-    // FILTRADO SIMPLE: estimar gravedad (very simple low-pass)
-    gravityEstimate.multiplyScalar(accelHighPassAlpha).addScaledVector(accDevice, 1 - accelHighPassAlpha);
-
-    // obtener aceleración lineal aproximada (device - gravedad)
-    const accLinearDevice = new THREE.Vector3().subVectors(accDevice, gravityEstimate);
-
-    // transformar aceleración device->world usando la orientación actual del dispositivo
-    const accWorld = accLinearDevice.clone().applyQuaternion(deviceQuaternion);
-
-    // opcional: ignorar pequeñas aceleraciones para reducir ruido
-    if (accWorld.length() < accelThreshold) {
-      // pequeño: considerar 0
-      accWorld.set(0,0,0);
-    }
-
-    // integrar velocidad y posicion (simple Euler)
-    // v = v + a*dt
-    velocity.addScaledVector(accWorld, dt);
-
-    // atenuacion para reducir drift
-    velocity.multiplyScalar(velocityDamping);
-
-    // pos = pos + v*dt
-    estOffset.addScaledVector(velocity, dt);
-  }, true);
-
-  // Loop render: actualizar cubo según modo
-  scene.addEventListener('renderstart', () => {
-    scene.onBeforeRender = () => {
-      if (!worldMode && marker.object3D.visible) {
-        // Modo marcador: actualizar pose real
-        lastMarkerPose.pos.copy(marker.object3D.position);
-        lastMarkerPose.rot.copy(marker.object3D.rotation);
-
-        cubo.object3D.position.copy(lastMarkerPose.pos);
-        cubo.object3D.rotation.copy(lastMarkerPose.rot);
-
-      } else if (worldMode) {
-        // Modo mundo: anchor + offset estimado + rotación por dispositivo
-        const worldPos = new THREE.Vector3().copy(worldAnchor).add(estOffset);
-        cubo.object3D.position.copy(worldPos);
-
-        // aplicar rotación del dispositivo (para que el cubo "gire" con el móvil)
-        cubo.object3D.quaternion.copy(deviceQuaternion);
-      }
-    };
-  });
-
-  // Opcional: añadir un gesto para recenter/recargar anchor manualmente
-  window.addEventListener('click', () => {
-    if (marker.object3D.visible) {
-      // si tocamos con marcador visible -> resetea estimadores (gancho)
-      estOffset.set(0,0,0);
-      velocity.set(0,0,0);
-      worldAnchor.copy(marker.object3D.position);
-      worldRotation.copy(marker.object3D.rotation);
+        // Hacerlo visible
+        cube.setAttribute('visible', true);
+      });
     }
   });
-
-});
 </script>
 </body>
 </html>
