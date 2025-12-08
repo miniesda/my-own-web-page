@@ -1,17 +1,86 @@
 <!DOCTYPE html>
+<html>
 <head>
-	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-	<title>Prototype 1</title>
-    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
+  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+  <title>AR World</title>
+
+  <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
 </head>
 
-<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
-<a-scene embedded arjs="sourceType: webcam; detectionMode: mono_and_matrix; matrixCodeType: 3x3;">
-    <a-marker preset='kanji'>
-        <a-box position="0 0 -1" material="color: red;"></a-box>
-    </a-marker>
-    
+<body style="margin: 0; overflow: hidden;">
+
+<a-scene embedded vr-mode-ui="enabled: false" arjs="sourceType: webcam; detectionMode: mono_and_matrix; matrixCodeType: 3x3;">
+    <a-marker id="marker" preset="kanji"></a-marker>
+
+    <!-- El cubo vive fuera del marker -->
+    <a-box id="cubo"
+           color="red"
+           position="0 0 0"
+           visible="false">
+    </a-box>
+
+    <a-entity id="cameraRig">
+        <a-entity camera></a-entity>
+    </a-entity>
 </a-scene>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const marker = document.querySelector("#marker");
+    const cubo = document.querySelector("#cubo");
+    const cameraRig = document.querySelector("#cameraRig").object3D;
+
+    let worldAnchor = new THREE.Vector3();
+    let worldRotation = new THREE.Euler();
+    let worldMode = false;
+
+    let lastMarkerPose = {
+        pos: new THREE.Vector3(),
+        rot: new THREE.Euler()
+    };
+
+    marker.addEventListener("markerFound", () => {
+        worldMode = false;
+        cubo.setAttribute("visible", true);
+    });
+
+    marker.addEventListener("markerLost", () => {
+        worldMode = true;
+
+        worldAnchor.copy(lastMarkerPose.pos);
+        worldRotation.copy(lastMarkerPose.rot);
+    });
+
+
+    let deviceRot = new THREE.Euler();
+
+    window.addEventListener("deviceorientation", (e) => {
+        deviceRot.x = THREE.MathUtils.degToRad(e.beta || 0);
+        deviceRot.y = THREE.MathUtils.degToRad(e.alpha || 0);
+        deviceRot.z = THREE.MathUtils.degToRad(e.gamma || 0);
+    });
+
+    document.querySelector("a-scene").addEventListener("renderstart", () => {
+        const scene3D = document.querySelector("a-scene").object3D;
+
+        scene3D.onBeforeRender = () => {
+
+            if (!worldMode && marker.object3D.visible) {
+                lastMarkerPose.pos.copy(marker.object3D.position);
+                lastMarkerPose.rot.copy(marker.object3D.rotation);
+
+                cubo.object3D.position.copy(lastMarkerPose.pos);
+                cubo.object3D.rotation.copy(lastMarkerPose.rot);
+
+            } else if (worldMode) {
+                cubo.object3D.position.copy(worldAnchor);
+                cubo.object3D.rotation.copy(deviceRot);
+            }
+        };
+    });
+});
+</script>
+
 </body>
 </html>
