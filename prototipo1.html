@@ -14,15 +14,14 @@
                 display: flex; flex-direction: column; 
                 justify-content: center; align-items: center;
                 background: rgba(0,0,0,0.7); cursor: pointer; text-align: center;">
-        
-        <p style="color: white; font-size: 1.5em;">
-            Please take a seat
-            and place the QR in 
-            the center of the screen
-        </p>
-      <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://http://127.0.0.1:5500/prototipo1.html" 
-       alt="Scan QR" 
-       style="display:block; margin:auto; opacity: 0.5;">
+
+        <p style="color: white; font-size: 1.5em;">Please take a seat</p>
+        <p style="color: white; font-size: 1.5em;">and place the QR in</p>
+        <p style="color: white; font-size: 1.5em;">the center of the screen</p>
+
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://http://127.0.0.1:5500/prototipo1.html" 
+        alt="Scan QR" 
+        style="display:block; margin:auto; opacity: 0.5;">
     </div>
 
     <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false" 
@@ -46,7 +45,7 @@
         </a-entity>
         <a-plane 
             rotation="-90 0 0"
-            position="0 -1.5 -2"
+            position="0 -1.5 -"
             scale="100 10 10"
             color="#FFF">
         </a-plane>
