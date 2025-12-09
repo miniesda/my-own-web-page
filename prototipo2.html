@@ -1,25 +1,122 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
-    <title>Train AR Example</title>
-    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-aframe.prod.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <script src="https://diarmidmackenzie.github.io/aframe-components/components/connecting-line/index.js"></script>
   </head>
-  <body style="overflow: hidden;">
+  <body>
+    <a-scene mindar-image="imageTargetSrc: https://miniesda.github.io/my-own-web-page/assets-prototipos/plano-metro-sevilla-web.mind;" 
+    vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+      <a-entity id="example-target" mindar-image-target="targetIndex: 0" mindar-image="filterMinCF:0.001; filterBeta:15; missTolerance:2;">
+        <!--
+        <a-plane color="#ff000033" position="0 0 0" height="0.552" width="1" rotation="0 0 0"></a-plane>
+        -->
+        <a-sphere id="station1" position="0.2 0.1 0" radius="0.02" color="#00ff00" smooth-transform="speed:0.2">
+          
+        </a-sphere>
+        <a-sphere id="station2" position="0 0 0" radius="0.02" color="#00ff00" smooth-transform="speed:0.2">
 
-    <a-scene
-      id="arScene"
-      mindar-image="imageTargetSrc: https://miniesda.github.io/my-own-web-page/assets-prototipos/plano-metro-sevilla-web.mind;"
-      embedded
-      renderer="logarithmicDepthBuffer: true;"
-    >
-      <a-camera position="0 0 0"></a-camera>
+        </a-sphere>
+        <a-sphere id="station3" position="-0.2 0 0" radius="0.02" color="#00ff00" smooth-transform="speed:0.2">
 
-      <a-entity mindar-image-target="targetIndex: 0">
-        <a-box position="0 0.5 0" material="color: red;"></a-box>
+        </a-sphere>
       </a-entity>
     </a-scene>
-
   </body>
+  <script>
+  AFRAME.registerComponent('smooth-transform', {
+    schema: { speed: { type: 'number', default: 0.1 } },
+    init: function () {
+      // Store lastPos as a THREE.Vector3
+      this.lastPos = this.el.object3D.position.clone();
+    },
+    tick: function () {
+      const el = this.el;
+      const current = el.object3D.position;
+      // Smoothly interpolate current position towards lastPos
+      current.lerp(this.lastPos, this.data.speed);
+      // Update lastPos for next frame
+      this.lastPos.copy(current);
+    }
+  });
+
+  const exampleTarget = document.querySelector('#example-target');
+  const lineDefinition = "start:#station1; end:#station2; color:#00ff00; width:0.01";
+  const lineDefinition2 = "start:#station2; end:#station3; color:#00ff00; width:0.01";
+
+  let lineEntity = null;
+  let lineEntity2 = null;
+
+  const stationInfoData = {
+    station1: { platform1: "2 min", platform2: "5 min" },
+    station2: { platform1: "1 min", platform2: "3 min" },
+    station3: { platform1: "4 min", platform2: "7 min" }
+  };
+
+  let info1, info2, info3;
+
+  function createStationInfo(stationId, yOffset = 0.05) {
+    const info = document.createElement("a-entity");
+
+    const { platform1, platform2 } = stationInfoData[stationId];
+    const textValue = `Anden 1: ${platform1}\nAnden 2: ${platform2}`;
+
+    info.setAttribute("text", {
+      value: textValue,
+      color: "#000",
+      align: "center",
+      width: 0.5
+    });
+
+    const station = document.querySelector(`#${stationId}`);
+
+    // Sitúa la info justo encima de la estación
+    info.setAttribute("position", {
+      x: station.getAttribute("position").x,
+      y: station.getAttribute("position").y + yOffset,
+      z: station.getAttribute("position").z
+    });
+
+    return info;
+  }
+
+  exampleTarget.addEventListener("targetFound", () => {
+    console.log("target found");
+
+    lineEntity = document.createElement('a-entity');
+    lineEntity.setAttribute("connecting-line__1", lineDefinition);
+    exampleTarget.appendChild(lineEntity);
+
+    lineEntity2 = document.createElement('a-entity');
+    lineEntity2.setAttribute("connecting-line__1", lineDefinition2);
+    exampleTarget.appendChild(lineEntity2);
+
+    info1 = createStationInfo("station1");
+    exampleTarget.appendChild(info1);
+
+    info2 = createStationInfo("station2");
+    exampleTarget.appendChild(info2);
+
+    info3 = createStationInfo("station3");
+    exampleTarget.appendChild(info3);
+  });
+
+  exampleTarget.addEventListener("targetLost", () => {
+    console.log("target lost");
+
+    if (lineEntity && lineEntity.parentNode) lineEntity.parentNode.removeChild(lineEntity);
+    if (lineEntity2 && lineEntity2.parentNode) lineEntity2.parentNode.removeChild(lineEntity2);
+
+    if (info1 && info1.parentNode) info1.parentNode.removeChild(info1);
+    if (info2 && info2.parentNode) info2.parentNode.removeChild(info2);
+    if (info3 && info3.parentNode) info3.parentNode.removeChild(info3);
+
+    lineEntity = lineEntity2 = info1 = info2 = info3 = null;
+  });
+
+  
+  </script>
 </html>
