@@ -11,8 +11,22 @@
 
   <a-box id="box" material="color: yellow" gps-new-entity-place="latitude: 40.287578; longitude: -3.784208" position="0 660 0" scale="100 100 100"/>
   <a-box id="box" material="color: blue" gps-new-entity-place="latitude: 40.287578; longitude: -3.784208" position="0 0 0" scale="100 100 100"/>
-  <a-camera gps-new-camera></a-camera>
+  <a-camera id="camera" gps-new-camera></a-camera>
 </a-scene>
+<p id="id" style="position: fixed; bottom: 10px; left: 10px; color: white;"></p>
 </body>
+<script>
+  const camera = document.querySelector('#camera');
+  const output = document.getElementById('id');
 
+  camera.addEventListener('gps-camera-update-position', (e) => {
+    const { latitude, longitude, accuracy } = e.detail.position;
+
+    output.innerHTML = `
+      Latitude: ${latitude.toFixed(6)}<br>
+      Longitude: ${longitude.toFixed(6)}<br>
+      Accuracy: ${accuracy.toFixed(1)} m
+    `;
+  });
+</script>
 </html>
