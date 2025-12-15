@@ -23,5 +23,21 @@
 
             <a-camera gps-camera rotation-reader></a-camera>
         </a-scene>
+        <p id="info" style="position: fixed; bottom: 10px; left: 10px; color: white;">info</p>
+        <script>
+          const camera = document.querySelector('#camera');
+          const output = document.getElementById('info');
+
+          camera.addEventListener('gps-camera-update-position', (e) => {
+          const { latitude, longitude, accuracy } = e.detail.position;
+
+          output.innerHTML = `
+            Latitude: ${latitude}<br>
+            Longitude: ${longitude}<br>
+            Accuracy: ${accuracy}
+          `;
+          console.log(output.innerHTML);
+          });
+        </script>
     </body>
 </html>
