@@ -1,46 +1,27 @@
 <!doctype html>
 <html>
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+        <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
+        <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
+    </head>
 
-<head>
-  <link rel="canonical" href="https://inspiredlabs.github.io/ar.js/markerless.html" />
-  <!-- location based aframe v0.9.2 -->
-  <script src="https://aframe.io/releases/0.9.2/aframe.min.js"></script>
-  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
-  <script src="https://diarmidmackenzie.github.io/aframe-components/components/connecting-line/index.js"></script>
-</head>
-<a-scene id="scene" vr-mode-ui="enabled: false">
+    <body style="margin: 0; overflow: hidden;">
+        <a-scene
+            embedded
+            loading-screen="enabled: false;"
+            arjs="sourceType: webcam; debugUIEnabled: false;"
+        >
+                <a-image
+                    src="assets-prototipos/qr.jpg"
+                    look-at="[gps-camera]"
+                    scale="1 1 1"
+                    gps-entity-place="latitude: 40.287578548079296; longitude: -363.7841321434827;"
+                ></a-image>
 
-  <a-box id="box1" material="color: yellow" gps-new-entity-place="latitude: 40.287578; longitude: -3.784208" scale="100 100 100"/>
-  <a-camera id="camera" gps-new-camera></a-camera>
-</a-scene>
-<p id="id" style="position: fixed; bottom: 10px; left: 10px; color: white;">aaa</p>
-</body>
-<script>
-  const camera = document.querySelector('#camera');
-  const output = document.getElementById('id');
-
-  camera.addEventListener('gps-camera-update-position', (e) => {
-    const { latitude, longitude, accuracy } = e.detail.position;
-
-    output.innerHTML = `
-      Latitude: ${latitude}<br>
-      Longitude: ${longitude}<br>
-      Accuracy: ${accuracy}
-    `;
-    console.log(output.innerHTML);
-
-    scene = document.getElementById(scene);
-
-    box2 = document.createElement('a-box');
-    box2.setAttribute("gps-new-entity-place", `latitude: ${latitude}; longitude: ${longitude}`);
-    box2.setAttribute("material", "color:blue");
-    box2.setAttribute("scale","10 10 10");
-    scene.appendChild(box2);
-
-    const lineDefinition = "start:#box2; end:#box1; color:#00ff00; width:0.02";
-    lineEntity = document.createElement('a-entity');
-    lineEntity.setAttribute("connecting-line__1", lineDefinition);
-    scene.appendChild(lineEntity);
-  });
-</script>
+            <a-camera gps-camera rotation-reader></a-camera>
+        </a-scene>
+    </body>
 </html>
