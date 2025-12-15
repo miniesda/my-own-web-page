@@ -13,7 +13,7 @@
   <a-box id="box" material="color: blue" gps-new-entity-place="latitude: 40.287578; longitude: -3.784208" position="0 0 0" scale="100 100 100"/>
   <a-camera id="camera" gps-new-camera></a-camera>
 </a-scene>
-<p id="id" style="position: fixed; bottom: 10px; left: 10px; color: white;"></p>
+<p id="id" style="position: fixed; bottom: 10px; left: 10px; color: white;">aaa</p>
 </body>
 <script>
   const camera = document.querySelector('#camera');
@@ -23,10 +23,11 @@
     const { latitude, longitude, accuracy } = e.detail.position;
 
     output.innerHTML = `
-      Latitude: ${latitude.toFixed(6)}<br>
-      Longitude: ${longitude.toFixed(6)}<br>
-      Accuracy: ${accuracy.toFixed(1)} m
+      Latitude: ${latitude}<br>
+      Longitude: ${longitude}<br>
+      Accuracy: ${accuracy}
     `;
+    console.output(output.innerHTML)
   });
 </script>
 </html>
