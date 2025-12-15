@@ -21,11 +21,11 @@
                     gps-entity-place="latitude: 40.287578548079296; longitude: -363.7841321434827;"
                 ></a-image>
 
-            <a-camera gps-camera rotation-reader></a-camera>
+            <a-camera gps-camera rotation-reader id="cam"></a-camera>
         </a-scene>
         <p id="info" style="position: fixed; bottom: 10px; left: 10px; color: white;">info</p>
         <script>
-          const camera = document.querySelector('#camera');
+          const camera = document.getElementById('cam');
           const output = document.getElementById('info');
 
           camera.addEventListener('gps-camera-update-position', (e) => {
