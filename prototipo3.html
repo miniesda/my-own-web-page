@@ -20,9 +20,14 @@
         arjs='sourceType: webcam; sourceWidth:1280; sourceHeight:960; displayWidth: 1280; displayHeight: 960; debugUIEnabled: false;'
         >
 
-        <a-box scale="1 1 1" material="color: red" gps-entity-place="latitude: 40.287578548079296; longitude: -3.7841321434827;" id="targetBox"></a-box>
+        <a-box scale="1 1 1" material="color: red" gps-entity-place="latitude: 40.287578548079296; longitude: -3.7841321434827;" id="targetBox" position="0 -1 0">
+          <a-text
+            value="📍"
+            scale="5 5 5"
+          ></a-text>
+        </a-box>
 
-        <a-box scale="0.1 0.1 0.1" material="color: red" position="0 0 0" id="camBox"></a-box>
+        <a-box scale="0.1 0.1 0.1" material="color: red" position="0 -1 0" id="camBox"></a-box>
 
         <a-entity connecting-line__1="start:#camBox; end:#targetBox; color:red; width:0.02"></a-entity>
 
