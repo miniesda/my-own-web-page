@@ -7,30 +7,36 @@
     <script src='https://aframe.io/releases/0.9.2/aframe.min.js'></script>
     <script src="https://raw.githack.com/jeromeetienne/AR.js/master/aframe/build/aframe-ar.min.js"></script>
     <script src="https://raw.githack.com/donmccurdy/aframe-extras/master/dist/aframe-extras.loaders.min.js"></script>
+    <script src="https://diarmidmackenzie.github.io/aframe-components/components/connecting-line/index.js"></script>
     <script>
         THREEx.ArToolkitContext.baseURL = 'https://raw.githack.com/jeromeetienne/ar.js/master/three.js/'
     </script>
 </head>
 
 <body style='margin: 0; overflow: hidden;'>
-    <a-scene
+  <a-scene
         vr-mode-ui="enabled: false"
 		embedded
         arjs='sourceType: webcam; sourceWidth:1280; sourceHeight:960; displayWidth: 1280; displayHeight: 960; debugUIEnabled: false;'
         >
 
-        <a-box scale="1 1 1" material="color: red" gps-entity-place="latitude: 40.287578548079296; longitude: -363.7841321434827;"></a-box>
+        <a-box scale="1 1 1" material="color: red" gps-entity-place="latitude: 40.287578548079296; longitude: -3.7841321434827;" id="targetBox"></a-box>
+
+        <a-box scale="0.1 0.1 0.1" material="color: red" position="0 0 0" id="camBox"></a-box>
+
+        <a-entity connecting-line__1="start:#camBox; end:#targetBox; color:red; width:0.02"></a-entity>
 
         <a-camera gps-camera rotation-reader id="cam"></a-camera>
 	</a-scene>
 
   <p id="info" style="position: fixed; bottom: 10px; left: 10px; color: rgb(255, 0, 0);">info</p>
-  
-  <script>
-    const camera = document.getElementById('cam');
-    const output = document.getElementById('info');
 
-    camera.addEventListener('gps-camera-update-position', (e) => {
+  <script>
+    const cameraEl = document.querySelector("#cam");
+    const boxEl = document.querySelector("#targetBox");
+    const output = document.getElementById("info");
+
+    cameraEl.addEventListener('gps-camera-update-position', (e) => {
     const { latitude, longitude, accuracy } = e.detail.position;
 
     output.innerHTML = `
