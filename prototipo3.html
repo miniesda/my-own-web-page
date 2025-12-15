@@ -8,10 +8,9 @@
   <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
   <script src="https://diarmidmackenzie.github.io/aframe-components/components/connecting-line/index.js"></script>
 </head>
-<a-scene vr-mode-ui="enabled: false">
+<a-scene id="scene" vr-mode-ui="enabled: false">
 
   <a-box id="box1" material="color: yellow" gps-new-entity-place="latitude: 40.287578; longitude: -3.784208" scale="100 100 100"/>
-  <a-box id="box2" material="color: blue" gps-new-entity-place="latitude: 40.287578; longitude: -3.784208" scale="1 1 1"/>
   <a-camera id="camera" gps-new-camera></a-camera>
 </a-scene>
 <p id="id" style="position: fixed; bottom: 10px; left: 10px; color: white;">aaa</p>
@@ -28,16 +27,20 @@
       Longitude: ${longitude}<br>
       Accuracy: ${accuracy}
     `;
-    console.log(output.innerHTML)
+    console.log(output.innerHTML);
 
-    box2 = document.getElementById(box2)
+    scene = document.getElementById(scene);
 
-    box2.setAttribute("gps-new-entity-place", "latitude: " + latitude + "; longitude: " + longitude)
+    box2 = document.createElement('a-box');
+    box2.setAttribute("gps-new-entity-place", `latitude: ${latitude}; longitude: ${longitude}`);
+    box2.setAttribute("material", "color:blue");
+    box2.setAttribute("scale","10 10 10");
+    scene.appendChild(box2);
 
     const lineDefinition = "start:#box2; end:#box1; color:#00ff00; width:0.02";
     lineEntity = document.createElement('a-entity');
     lineEntity.setAttribute("connecting-line__1", lineDefinition);
-    exampleTarget.appendChild(lineEntity);
+    scene.appendChild(lineEntity);
   });
 </script>
 </html>
