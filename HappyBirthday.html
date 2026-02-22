@@ -18,13 +18,13 @@
     <h1>¡Feliz Cumpleaños! Desliza por la pantalla para disfrutar de tu tarta 3D</h1>
     (Puedes darle click para recibir tu regalo)
     -->
-    <h1>Happy Birthday! Swipe around to enjoy your 3d cake</h1>
-    (you can click it to recieve your present)
+    <h1>Feliz cumpleaños! Desliza por la pantalla para disfrutar de tu tarta en 3D</h1>
+    (puedes pulsarla para recibir un regalo)
     
     <a-scene>
         <a-assets>
             <a-asset-item id="cakeModel1" src="./cake-1/cake1.glb"></a-asset-item>
-            <a-asset-item id="cakeModel0" src="./cake-1/cake0.glb"></a-asset-item>
+            <a-asset-item id="cakeModel0" src="./cake-1/cake2.glb"></a-asset-item>
         </a-assets>
             <a-entity id="cake" class="clickable" gltf-model="#cakeModel1" position="0 0 0" rotation="0 0 0" scale="0.5 0.5 0.5"></a-entity>
             <a-entity id="cake1" class="clickable" gltf-model="#cakeModel0" position="0 0 0" rotation="0 0 0" scale="0.5 0.5 0.5"></a-entity>
@@ -55,8 +55,8 @@
     }, 1000);
 
     document.querySelector('.clickable').addEventListener('click', function () {
-        //alert("¡¡Estas viejaa!! 🫵👵");
-        alert("¡¡You are old!! 🫵👵");
+        alert("¡¡Estas viejaa!! 🫵👵");
+        //alert("¡¡You are old!! 🫵👵");
     });
   </script>
 </html>
