@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pag Web Random</title>
+
+    <style>
+        body {
+            background-image: url("https://i.pinimg.com/originals/52/9c/49/529c49e9164d33dd37bdc658d9a807f5.gif");
+            background-size: cover;
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+            text-align: center;
+            color: white;
+        }
+
+        #content {
+            margin-top: 50px;
+            background-color: rgba(0, 0, 0, 0.75);
+            padding: 40px;
+        }
+
+        .pacman-button {
+            display: inline-flex;
+            padding: 10px;
+            background-color: black;
+            border-radius: 45px;
+            flex-direction: row;
+        }
+
+        #pacman {
+            width: 30px;
+            height: 30px;
+            background-color: yellow;
+            border-radius: 50%;
+        }
+
+        .pacman-mouth {
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            clip-path: polygon(50% 50%, 100% 0, 100% 100%);
+            animation: pacman-animation 0.5s infinite;
+        }
+
+        @keyframes pacman-animation {
+            0% { transform: rotateX(0deg); }
+            50% { transform: rotateX(90deg); }
+            100% { transform: rotateX(0deg); }
+        }
+
+    </style>
+</head>
+<body onLoad="displayTextAndMeme()">
+
+    <div id="content">
+
+    <img id="meme" src="" alt="Meme" style="max-width: 100%; height: 300px;">
+    <h2 id="text"></h2>
+    
+
+    <div class="pacman-button" id="nextButton" onclick="displayTextAndMeme()">
+        <div id="pacman">
+            <div class="pacman-mouth"></div>
+        </div>
+        <div style="margin-left: 10px; margin-top: 5px; margin-right: 5px;">Siguiente</div>
+    </div>
+
+    <div id="lastButton" class="pacman-button" style="display: none;">
+        <p>
+        Posibles respuestas en WhatsApp:<br><br>
+        ¡Vale! Te digo cuando estoy disponible.<br><br>
+        Iugh, no me apetece quedar contigo.
+        </p>
+    </div>
+
+    </div>
+    
+</body>
+
+<script>
+
+    var textToDisplay = [
+        "Hola Miriam, he creado esta página web porque me aburría. 💻",
+        "En vista de que el grupo de GBU no ha dicho de quedar todavía. ¿Qué le parecería quedar nosotros por ahí como amigos? Le invito a un helado o algo fresquito. 🍦",
+        "Todavía no he ido a Londres, así que no tengo su souvenir. Pero le puedo ofrecer mi TAN divertida compañía.😎",
+        "O puede esperar al día 6 por la tarde o el 7 de Julio, que es cuando vuelvo. Y le doy su regalo.🎁",
+        "Más que nada, porque en algun momento de esa semana me iré a Murcia a ver a la familia y después a Valencia con amigos hasta el 18 de Julio.🥷🏻",
+        "Así que, ¿qué le parece el plan?¿Estará disponible?👀"
+    ];
+
+    var memeToDisplay = [
+        "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExMmtwemR0aDJpa3U3aDlsNjV0b2dhMjRuaWYzY2dxNTRodHAybWQ3OSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/JIX9t2j0ZTN9S/giphy.gif",
+        "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExY3F2bzN2cDBxcjltZmNjcjB3OW4zN3lidzY5ZzFqeDFqN2F1Y2Z6YiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/wbp3YSoF7FhT3XyjeE/giphy.gif",
+        "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExdnA3aWFiY21kejBpeG1zd2t2MXA5cjZoeGRrbTQxangyd2J3MXd5aSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/hGLdrItUOxou4/giphy.gif",
+        "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExa2lwcTVlMHRlaWk5czM2cWxmdHZ6Znk0eWp4a2ZleWN0bmw1NTFsOSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/z4lwT4QTkK3sYITR7Z/giphy.gif",
+        "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExcW9obmc4M3drb214MzR2ZTJ1cjlxNmR2dnB6ejE4cGxqcnk3YmF3ZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/otrb71Yvw89DcVKd42/giphy.gif",
+        "./imagenes/1b539c8e-43dc-4fef-9694-c4a24505b72e.webp"
+    ];
+
+    var currentIndex = 0;
+
+    function displayTextAndMeme() {
+        var textElement = document.getElementById("text");
+        var memeElement = document.getElementById("meme");
+        var button = document.getElementById("nextButton");
+
+        var lastButton = document.getElementById("lastButton");
+
+        textElement.textContent = textToDisplay[currentIndex];
+        memeElement.src = memeToDisplay[currentIndex];
+
+        currentIndex++;
+        if (currentIndex >= textToDisplay.length) {
+            currentIndex = 0;
+            button.style.display = "none";
+            lastButton.style.display = "inline-flex";
+        }
+    }
+
+</script>
+</html>
