@@ -1,4 +1,4 @@
-Here I try some work related stuff, things get messy
+Here I try some work related stuff and personal projects, things get messy
 
 Feel free to check the main page and the subdirectories:
 
