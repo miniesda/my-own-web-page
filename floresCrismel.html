@@ -1,34 +1,150 @@
-<html>
-  <head>
-    <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
-    <script src="https://unpkg.com/aframe-orbit-controls@1.3.2/dist/aframe-orbit-controls.min.js"></script>
-    <title>Flores amarillas para Crismel!</title>
-  </head>
-  <body>
-    <style>
-      body {
-        margin: 0;
-        height: 100vh;
-        background: radial-gradient(circle, #161616, #030303);
-        overflow: hidden;
-        text-align: center;
-        color: aqua;
-      }
-    </style>
+<!DOCTYPE html>
+<html lang="es">
 
-    <h1>Flores amarillas para Crismel!</h1>
-    <a-scene>
-        <a-assets>
-            <a-asset-item id="flowerModel" src="./cake-1/floresCrismel.glb"></a-asset-item>
-        </a-assets>
-        <a-entity id="flower" class="clickable" gltf-model="#flowerModel" position="0 0 2" rotation="0 0 0" scale="0.5 0.5 0.5"></a-entity>
-        <a-entity camera orbit-controls="target: 0 0 0; minDistance: 5; maxDistance: 50; initialPosition: 30 15 0; 
-            autoRotate: true; autoRotateSpeed: 0.1; 
-            enableDamping: false; enableRotation: true; 
-            enableZoom: true; zoomSpeed: 0.5; rotateSpeed:0.75;">
-            <a-entity cursor="fuse: false; rayOrigin: mouse" raycaster="objects: .clickable"></a-entity>
-        </a-entity>
-        <a-light type="ambient" color="#ffffff" intensity="1"></a-light>
-        <a-light type="directional" color="#ffffff" intensity="2" position="0 10 10"></a-light>
-    </a-scene>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
+  <script src="https://unpkg.com/aframe-orbit-controls@1.3.2/dist/aframe-orbit-controls.min.js"></script>
+  <title>Flores amarillas para Crismel! 🌼</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #fff8d6, #ffe8ef);
+      overflow: hidden;
+      font-family: "Trebuchet MS", Arial, sans-serif;
+      color: #d99b00;
+    }
+
+    /* Cute title */
+    .title {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      margin: 0;
+      padding: 12px 25px;
+      background: rgba(255, 255, 255, 0.75);
+      border-radius: 50px;
+      border: 1px solid rgba(255, 210, 70, 0.35);
+      box-shadow: 0 8px 25px rgba(255, 190, 80, 0.2);
+      color: #d99b00;
+      font-size: clamp(1.4rem, 4vw, 2rem);
+      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+    }
+
+    /* A-Frame takes up the entire screen */
+    a-scene {
+      width: 100vw;
+      height: 100vh;
+    }
+
+    /* Floating decorations */
+    .decoration {
+      position: fixed;
+      z-index: 20;
+      pointer-events: none;
+      font-size: 25px;
+      opacity: 0.7;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .flower1 {
+      top: 18%;
+      left: 7%;
+    }
+
+    .flower2 {
+      top: 70%;
+      left: 10%;
+      animation-delay: 1s;
+    }
+
+    .flower3 {
+      top: 25%;
+      right: 8%;
+      animation-delay: 0.5s;
+    }
+
+    .flower4 {
+      top: 75%;
+      right: 10%;
+      animation-delay: 1.5s;
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0) rotate(-5deg);
+      }
+
+      50% {
+        transform: translateY(-10px) rotate(5deg);
+      }
+    }
+
+    /* Back button */
+    .back-button {
+      position: fixed;
+      z-index: 20;
+      bottom: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 22px;
+      border: none;
+      border-radius: 50px;
+      background: rgba(255, 255, 255, 0.85);
+      color: #d99b00;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(255, 190, 80, 0.25);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .back-button:hover {
+      transform: translateX(-50%) translateY(-3px) scale(1.04);
+      box-shadow: 0 12px 25px rgba(255, 190, 80, 0.35);
+    }
+  </style>
+</head>
+
+<body>
+  <h1 class="title"> 🌼 Flores amarillas para Crismel! 💛 </h1>
+  
+  <!-- Cute decorations -->
+  <div class="decoration flower1">🌼</div>
+  <div class="decoration flower2">🌻</div>
+  <div class="decoration flower3">🌼</div>
+  <div class="decoration flower4">🌻</div> 
+
+  <a-scene> 
+    <a-assets> 
+      <a-asset-item id="flowerModel" src="./cake-1/floresCrismel.glb"></a-asset-item> 
+    </a-assets> 
+
+    <a-entity id="flower" gltf-model="#flowerModel" position="0 0 2"
+      rotation="0 0 0" scale="0.5 0.5 0.5"> </a-entity> <a-entity camera position="0 3 8"
+      orbit-controls=" target: 0 0 0; minDistance: 5; maxDistance: 50; initialPosition: 30 15 0; autoRotate: true; autoRotateSpeed: 0.1; enableDamping: false; enableRotation: true; enableZoom: true; zoomSpeed: 0.5; rotateSpeed: 0.75; ">
+        
+      <a-entity cursor="fuse: false; rayOrigin: mouse" raycaster="objects: .clickable"> 
+
+      </a-entity> 
+    </a-entity>
+
+    <!-- Soft lighting --> 
+     <a-light type="ambient" color="#fff8dc" intensity="1.5"> </a-light> 
+     <a-light type="directional" color="#fff5c2" intensity="2" position="0 10 10"> </a-light> 
+    <a-light type="point" color="#ffd95a" intensity="1" position="4 5 4"> </a-light> 
+  </a-scene>
+</body>
+
+</html>
