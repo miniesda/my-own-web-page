@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
+  <script src="https://unpkg.com/aframe-orbit-controls@1.3.2/dist/aframe-orbit-controls.min.js"></script>
+  <title>Flores amarillas para Crismel! 🌼</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #fff8d6, #ffe8ef);
+      overflow: hidden;
+      font-family: "Trebuchet MS", Arial, sans-serif;
+      color: #d99b00;
+    }
+
+    /* Cute title */
+    .title {
+      position: fixed;
+      top: 20px;
+      /*left: 5%;
+      transform: translateX(-50%);*/
+      z-index: 10;
+      margin: 0;
+      padding: 12px 25px;
+      background: rgba(255, 255, 255, 0.75);
+      border-radius: 50px;
+      border: 1px solid rgba(255, 210, 70, 0.35);
+      box-shadow: 0 8px 25px rgba(255, 190, 80, 0.2);
+      color: #d99b00;
+      font-size: clamp(1.4rem, 4vw, 2rem);
+      text-align: center;
+      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+    }
+
+    .title span {
+      display: block;
+      font-size: 0.7em;
+      margin-top: 6px;
+      color: #d99b00;
+    }
+
+    /* A-Frame takes up the entire screen */
+    a-scene {
+      width: 100vw;
+      height: 100vh;
+    }
+
+    /* Floating decorations */
+    .decoration {
+      position: fixed;
+      z-index: 20;
+      pointer-events: none;
+      font-size: 25px;
+      opacity: 0.7;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .flower1 {
+      top: 18%;
+      left: 7%;
+    }
+
+    .flower2 {
+      top: 70%;
+      left: 10%;
+      animation-delay: 1s;
+    }
+
+    .flower3 {
+      top: 25%;
+      right: 8%;
+      animation-delay: 0.5s;
+    }
+
+    .flower4 {
+      top: 75%;
+      right: 10%;
+      animation-delay: 1.5s;
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0) rotate(-5deg);
+      }
+
+      50% {
+        transform: translateY(-10px) rotate(5deg);
+      }
+    }
+
+    /* Back button */
+    .back-button {
+      position: fixed;
+      z-index: 20;
+      bottom: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 22px;
+      border: none;
+      border-radius: 50px;
+      background: rgba(255, 255, 255, 0.85);
+      color: #d99b00;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(255, 190, 80, 0.25);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .back-button:hover {
+      transform: translateX(-50%) translateY(-3px) scale(1.04);
+      box-shadow: 0 12px 25px rgba(255, 190, 80, 0.35);
+    }
+
+    /* ========================== MUSIC PLAYER ========================== */
+    .music-player {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      z-index: 100;
+      width: min(92%, 850px);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(255, 210, 70, 0.4);
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(255, 190, 80, 0.25);
+      backdrop-filter: blur(12px);
+    }
+
+    /* Album */
+    .album-art {
+      width: 48px;
+      height: 48px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 9px;
+      background: linear-gradient(135deg, #e8a5b8, #ffd95a);
+      font-size: 25px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+    }
+
+    /* Song info */
+    .track-info {
+      width: 130px;
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+      overflow: hidden;
+    }
+
+    .track-info strong {
+      color: #333;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .track-info span {
+      margin-top: 3px;
+      color: #888;
+      font-size: 0.75rem;
+      white-space: nowrap;
+    }
+
+    /* Play button */
+    .play-button {
+      width: 42px;
+      height: 42px;
+      flex-shrink: 0;
+      border: none;
+      border-radius: 50%;
+      background: #ffd84d;
+      color: #654f00;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .play-button:hover {
+      transform: scale(1.08);
+      box-shadow: 0 4px 12px rgba(255, 200, 50, 0.4);
+    }
+
+    /* Timeline */
+    .timeline {
+      flex: 1;
+      min-width: 100px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #999;
+      font-size: 0.65rem;
+    }
+
+    #progressBar {
+      flex: 1;
+      height: 4px;
+      appearance: none;
+      cursor: pointer;
+      border-radius: 10px;
+      background: #ddd;
+    }
+
+    #progressBar::-webkit-slider-thumb {
+      appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #d99b00;
+      cursor: pointer;
+    }
+
+    /* Volume */
+    .volume-button {
+      border: none;
+      background: transparent;
+      font-size: 17px;
+      cursor: pointer;
+      padding: 5px;
+    }
+
+    .volume-bar {
+      width: 70px;
+      height: 4px;
+      cursor: pointer;
+    }
+
+    /* Mobile */
+    @media (max-width: 650px) {
+      .music-player {
+        width: 94%;
+        gap: 9px;
+        padding: 9px;
+      }
+
+      .track-info {
+        display: none;
+      }
+
+      .volume-bar,
+      .volume-button {
+        display: none;
+      }
+
+      .album-art {
+        width: 42px;
+        height: 42px;
+        font-size: 21px;
+      }
+
+      .play-button {
+        width: 40px;
+        height: 40px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <h1 class="title"> 🌼 Flores amarillas para tí! 💛
+  </h1>
+
+  <!-- Cute decorations -->
+  <div class="decoration flower1">🌼</div>
+  <div class="decoration flower2">🌻</div>
+  <div class="decoration flower3">🌼</div>
+  <div class="decoration flower4">🌻</div>
+
+  <a-scene>
+    <a-assets>
+      <a-asset-item id="flowerModel" src="./cake-1/floresCrismel.glb"></a-asset-item>
+    </a-assets>
+
+    <a-entity id="flower" gltf-model="#flowerModel" position="0 0 2" rotation="0 0 0" scale="0.5 0.5 0.5"> </a-entity>
+    <a-entity camera position="0 3 8"
+      orbit-controls=" target: 0 0 0; minDistance: 5; maxDistance: 50; initialPosition: 30 15 0; autoRotate: true; autoRotateSpeed: 0.1; enableDamping: false; enableRotation: true; enableZoom: true; zoomSpeed: 0.5; rotateSpeed: 0.75; ">
+
+      <a-entity cursor="fuse: false; rayOrigin: mouse" raycaster="objects: .clickable">
+
+      </a-entity>
+    </a-entity>
+
+    <!-- Soft lighting -->
+    <a-light type="ambient" color="#fff8dc" intensity="1.5"> </a-light>
+    <a-light type="directional" color="#fff5c2" intensity="2" position="0 10 10"> </a-light>
+    <a-light type="point" color="#ffd95a" intensity="1" position="4 5 4"> </a-light>
+  </a-scene>
+
+  <footer class="music-player">
+    <div class="album-art"> 🌺 </div>
+
+    <div class="track-info"> <strong>Bugambilia</strong> <span>Nasa Histoires</span></div> <button id="playButton"
+      class="play-button" type="button"> ▶ </button>
+
+    <div class="timeline">
+      <span id="currentTime">0:00</span>
+      <input id="progressBar" type="range" min="0" max="100" value="0" aria-label="Progreso de la canción">
+      <span id="duration">0:00</span>
+    </div>
+    <div>
+      <button id="volumeButton" class="volume-button" type="button"> 🔊 </button>
+      <input id="volumeBar" class="volume-bar" type="range" min="0" max="1" step="0.01" value="1" aria-label="Volumen">
+    </div>
+    <audio id="audio" src="./cake-1/Bugambilia - Nasa Histoires (youtube).mp3"></audio>
+  </footer>
+</body>
+
+<script> 
+const audio = document.getElementById("audio"); 
+const playButton = document.getElementById("playButton"); 
+const progressBar = document.getElementById("progressBar"); 
+const currentTime = document.getElementById("currentTime"); 
+const duration = document.getElementById("duration"); 
+const volumeButton = document.getElementById("volumeButton"); 
+const volumeBar = document.getElementById("volumeBar"); 
+
+function formatTime(seconds) { 
+  if (!Number.isFinite(seconds)) { return "0:00"; } 
+  
+  const minutes = Math.floor(seconds / 60); 
+  const secs = Math.floor(seconds % 60); 
+  return `${minutes}:${secs.toString().padStart(2, "0")}`; 
+} 
+  
+  /* Play / Pause */ 
+  playButton.addEventListener("click", async () => { 
+    if (audio.paused) { 
+      try { 
+        await audio.play(); 
+        playButton.textContent = "❚❚"; } 
+      catch (error) { 
+        console.error("No se pudo reproducir el audio:", error); } } 
+    else { audio.pause(); playButton.textContent = "▶"; } 
+  }); 
+          
+  /* Actualizar duración */ 
+  audio.addEventListener("loadedmetadata", () => { 
+    duration.textContent = formatTime(audio.duration); 
+  }); 
+    
+  /* Actualizar progreso */ 
+  audio.addEventListener("timeupdate", () => { 
+    if (!audio.duration) return; 
+    
+    const percentage = (audio.currentTime / audio.duration) * 100; 
+    progressBar.value = percentage; currentTime.textContent = formatTime(audio.currentTime); 
+  }); 
+  
+  /* Moverse por la canción */ 
+  progressBar.addEventListener("input", () => { 
+    if (!audio.duration) return; 
+    
+    audio.currentTime = (progressBar.value / 100) * audio.duration; 
+  }); 
+  
+  /* Volumen */ 
+  volumeBar.addEventListener("input", () => { 
+    audio.volume = volumeBar.value; 
+  }); 
+  
+  /* Silenciar */ 
+  volumeButton.addEventListener("click", () => { 
+    audio.muted = !audio.muted; volumeButton.textContent = audio.muted ? "🔇" : "🔊"; 
+  }); 
+  
+  /* Cuando termina */ 
+  audio.addEventListener("ended", () => { 
+    playButton.textContent = "▶"; 
+    progressBar.value = 0; 
+    currentTime.textContent = "0:00"; 
+  }); 
+  
+  </script>
+
+</html>
