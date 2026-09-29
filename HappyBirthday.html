@@ -18,16 +18,20 @@
     <h1>¡Feliz Cumpleaños! Desliza por la pantalla para disfrutar de tu tarta 3D</h1>
     (Puedes darle click para recibir tu regalo)
     -->
+    <!--
     <h1>Feliz cumpleaños! Desliza por la pantalla para disfrutar de tu tarta en 3D</h1>
     (puedes pulsarla para recibir un regalo)
-    
+    -->
+    <h1>生日快乐! 滑动屏幕欣赏你的3D蛋糕</h1>
+    (你可以点击它来收到礼物)
+
     <a-scene>
         <a-assets>
-            <a-asset-item id="cakeModel1" src="./cake-1/231.glb"></a-asset-item>
-            <a-asset-item id="cakeModel0" src="./cake-1/232.glb"></a-asset-item>
+            <a-asset-item id="cakeModel1" src="./cake-1/4.glb"></a-asset-item>
+            <a-asset-item id="cakeModel0" src="./cake-1/41.glb"></a-asset-item>
         </a-assets>
-            <a-entity id="cake" class="clickable" gltf-model="#cakeModel1" position="0 0 0" rotation="0 0 0" scale="0.5 0.5 0.5"></a-entity>
-            <a-entity id="cake1" class="clickable" gltf-model="#cakeModel0" position="0 0 0" rotation="0 0 0" scale="0.5 0.5 0.5"></a-entity>
+            <a-entity id="cake" class="clickable" gltf-model="#cakeModel1" position="0 0 0" rotation="0 0 0" scale="40 40 40"></a-entity>
+            <a-entity id="cake1" class="clickable" gltf-model="#cakeModel0" position="0 0 0" rotation="0 0 0" scale="40 40 40"></a-entity>
         <a-entity camera orbit-controls="target: 0 0 0; minDistance: 5; maxDistance: 5; initialPosition: -2 2 -3; 
             autoRotate: true; autoRotateSpeed: 0.5; 
             enableDamping: false; enableRotation: true; 
@@ -55,8 +59,9 @@
     }, 1000);
 
     document.querySelector('.clickable').addEventListener('click', function () {
-        alert("¡¡Estas viejaa!! 🫵🏻👵🏻");
+        //alert("¡¡Estas viejaa!! 🫵🏻👵🏻");
         //alert("¡¡You are old!! 🫵👵");
+        alert("你老啦! ! 🫵🏻👵🏻");
     });
   </script>
 </html>
