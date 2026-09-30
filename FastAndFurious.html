@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Street Race</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+<style>
+  :root { --orange:#ff7a00; --yellow:#ffd400; }
+  html, body { margin:0; height:100%; background:#000; overflow:hidden; font-family:'Orbitron',Impact,sans-serif; color:#fff; }
+  .ui { position:fixed; left:0; right:0; z-index:10; text-align:center; pointer-events:none; }
+  #footer { bottom:0; padding:18px 12px calc(18px + env(safe-area-inset-bottom,0px));
+    background:linear-gradient(transparent,rgba(0,0,0,.85)); font-size:clamp(14px,2.4vw,24px);
+    letter-spacing:.12em; text-transform:uppercase; display:none; text-shadow:0 0 12px var(--orange); }
+  #footer b { color:var(--yellow); }
+  #count { top:38%; transform:translateY(-50%); font-size:clamp(70px,16vw,220px); font-weight:900; font-style:italic;
+    color:var(--yellow); text-shadow:0 0 30px var(--orange),0 0 70px #f30; opacity:0; }
+  #count.pop { animation:pop .9s ease-out forwards; }
+  #count.go { color:#3dff6b; text-shadow:0 0 30px #0f4,0 0 70px #0a3; }
+  @keyframes pop { 0%{opacity:0;transform:translateY(-50%) scale(1.8)} 20%{opacity:1} 100%{opacity:.15;transform:translateY(-50%) scale(.9)} }
+  #result { top:50%; transform:translateY(-50%); display:none; pointer-events:auto; }
+  #result .card { display:inline-block; background:rgba(0,0,0,.8); border:2px solid var(--orange); padding:28px 40px;
+    box-shadow:0 0 40px rgba(255,122,0,.5); }
+  #result h1 { margin:0 0 10px; font-size:clamp(28px,6vw,64px); font-style:italic; }
+  #result p { margin:6px 0; font-size:clamp(13px,2vw,20px); }
+  #result button { margin-top:18px; font:inherit; font-size:18px; padding:12px 28px; background:var(--orange); color:#000;
+    border:0; cursor:pointer; text-transform:uppercase; letter-spacing:.1em; font-weight:900; }
+  #loading { position:fixed; inset:0; z-index:20; background:#000; display:flex; align-items:center; justify-content:center;
+    text-align:center; padding:20px; letter-spacing:.2em; text-transform:uppercase; font-size:clamp(14px,3vw,24px); }
+  #loading.err { color:#ff5a4d; letter-spacing:.05em; }
+  #accel { position:fixed; right:clamp(16px,4vw,48px); bottom:calc(90px + env(safe-area-inset-bottom,0px)); z-index:15;
+    display:none; width:clamp(96px,16vw,150px); height:clamp(96px,16vw,150px); border-radius:50%; border:3px solid var(--yellow);
+    background:radial-gradient(circle at 35% 30%,#ffb14d,var(--orange) 60%,#b34a00); color:#000; font:inherit; font-weight:900;
+    font-size:clamp(12px,2vw,18px); letter-spacing:.08em; text-transform:uppercase; cursor:pointer;
+    box-shadow:0 0 30px rgba(255,122,0,.7); touch-action:none; user-select:none; -webkit-user-select:none; }
+  #accel:active, #accel.on { transform:scale(.94); filter:brightness(1.25); }
+  #accel.on { border-color:#3dff6b; box-shadow:0 0 50px #3dff6b; }
+</style>
+</head>
+<body>
+
+<div id="loading">Cargando ciudad…</div>
+<div id="count" class="ui"></div>
+<div id="result" class="ui"><div class="card"><h1 id="resTitle"></h1><p id="resP1"></p><p id="resP2"></p>
+  <button onclick="location.reload()">Otra carrera</button></div></div>
+<div id="footer" class="ui"></div>
+<button id="accel" type="button">Acelerar</button>
+
+<a-scene race cursor="rayOrigin: mouse" raycaster="objects: .clickable" vr-mode-ui="enabled: false"
+         loading-screen="enabled: false" renderer="antialias: true">
+
+  <a-assets id="assets" timeout="120000">
+    <!-- Cambia estos nombres si tus archivos se llaman distinto -->
+    <a-asset-item id="ciudad" src="cake-1/f&f2scene.glb"></a-asset-item>
+    <a-asset-item id="coche1" src="cake-1/f&f2nissan.glb"></a-asset-item>
+    <a-asset-item id="coche2" src="cake-1/f&f2suki.glb"></a-asset-item>
+  </a-assets>
+
+  <a-sky color="#0b0f24"></a-sky>
+  <a-entity light="type: ambient; color: #8fa0d0; intensity: 0.9"></a-entity>
+  <a-entity light="type: directional; color: #ffb36b; intensity: 1.1" position="-5 10 6"></a-entity>
+
+  <!-- Ciudad: ajusta position / scale / rotation según tu modelo -->
+  <a-entity id="city" gltf-model="#ciudad" position="0 0 0" scale="1 1 1"></a-entity>
+
+  <!-- Coches: el wrapper se mueve; el modelo interior (scale/rotation) se ajusta a tu GLB.
+       .cockpit = posición de la cámara dentro del coche (ajusta la altura/adelante). -->
+  <a-entity id="car1" class="car" position="0 0 0">
+    <a-entity class="clickable" gltf-model="#coche1" scale="1 1 1" rotation="0 0 0"></a-entity>
+    <a-entity class="cockpit" position="-49.5 7.5 65"></a-entity>
+  </a-entity>
+  <a-entity id="car2" class="car" position="0 0 0">
+    <a-entity class="clickable" gltf-model="#coche2" scale="1 1 1" rotation="0 0 0"></a-entity>
+    <a-entity class="cockpit" position="-53.5 7.5 65"></a-entity>
+  </a-entity>
+
+  <a-entity id="rig" position="-52 11 85">
+    <a-entity id="cam" camera="fov: 80" look-controls="pointerLockEnabled: false" wasd-controls="enabled: false" near="distance: 0.001"></a-entity>
+  </a-entity>
+</a-scene>
+
+<script>
+/* ---------- Ajustes rápidos ---------- */
+const CFG = {
+  CAR_YAW: 0,        // giro (grados) del wrapper de los coches (deja 0 para no mover el cockpit ni los modelos)
+  DRIVE_YAW: 180,    // dirección de la carrera y de la cámara al entrar: 0 = hacia -Z, 180 = hacia +Z, 90 = hacia -X, -90 = hacia +X
+  ENTER_TIME: 1.6,   // segundos que tarda la cámara en meterse en el coche
+  ACCEL: 20,         // aceleración (unidades/s²), siempre positiva; la dirección la marca DRIVE_YAW
+  RUN_TIME: 3.5,     // segundos que dura la arrancada
+  RIVAL_MIN: 220, RIVAL_MAX: 620,   // reacción del rival en ms
+  VOL_PLAYER: 0.55,  // volumen del motor del jugador (0-1)
+  VOL_RIVAL: 0.28    // volumen del motor del rival (0-1)
+};
+
+const $ = id => document.getElementById(id);
+const rig = $('rig'), cam = $('cam');
+const cars = [$('car1'), $('car2')];
+const yaw = CFG.CAR_YAW * Math.PI / 180;
+const driveYaw = CFG.DRIVE_YAW * Math.PI / 180;
+const fwd = new THREE.Vector3(-Math.sin(driveYaw), 0, -Math.cos(driveYaw));
+
+let state = 'loading', playerEl, rivalEl, basePos = new Map();
+let enterT = 0, startPos = new THREE.Vector3(), startYaw = 0, tmp = new THREE.Vector3();
+let goTime = 0, playerStart = null, rivalStart = null, falseStart = false, timers = [];
+
+const setFooter = html => { const f = $('footer'); f.innerHTML = html; f.style.display = html ? 'block' : 'none'; };
+const later = (fn, ms) => timers.push(setTimeout(fn, ms));
+
+/* ---------- Audio ---------- */
+let ac, bus, noiseBuf;
+function ensureAC() {
+  if (!ac) {
+    ac = new (window.AudioContext || window.webkitAudioContext)();
+    // compresor general para que los dos motores + pitidos no saturen
+    bus = ac.createDynamicsCompressor();
+    bus.threshold.value = -14; bus.ratio.value = 6;
+    bus.connect(ac.destination);
+    // ruido blanco reutilizable (aire / escape / soplado del turbo)
+    noiseBuf = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
+    const d = noiseBuf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  }
+  if (ac.state === 'suspended') ac.resume();
+  return ac;
+}
+function beep(freq, dur) {
+  try { const c = ensureAC();
+    const o = c.createOscillator(), g = c.createGain();
+    o.frequency.value = freq; g.gain.value = .15; o.connect(g); g.connect(c.destination);
+    o.start(); o.stop(c.currentTime + dur); } catch (e) {}
+}
+document.addEventListener('visibilitychange', () => {
+  if (!ac) return;
+  if (document.hidden) ac.suspend(); else ac.resume();
+});
+
+/* Perfiles de motor.
+   pulses = explosiones por vuelta (6 cil. = 3, 4 cil. = 2); layers = armónicos que se suman;
+   vt = capa que gana fuerza al entrar VTEC (vt0 = fracción que ya suena antes). */
+const ENGINE_PROFILES = [
+  { // coche1: Nissan Skyline GT-R · RB26DETT, 6 en línea biturbo: grave, ronco, con silbido de turbo y soplido
+    name: 'Skyline RB26DETT',
+    idle: 850, red: 8000, pulses: 3, gears: 3, q: 3,
+    cut0: 450, cut1: 1500, cutT: 900, cutV: 0, vtec: 0,
+    layers: [
+      { type: 'sawtooth', mult: 1,   gain: .50 },
+      { type: 'square',   mult: .5,  gain: .28 },
+      { type: 'sawtooth', mult: 2,   gain: .14, detune: 7 }
+    ],
+    noiseF: 450, noiseK: 1200, noiseG: .10,
+    turbo: .045, blow: true
+  },
+  { // coche2: Honda S2000 · F20C, 4 en línea atmosférico: agudo, metálico, VTEC a partir de ~6000 rpm
+    name: 'S2000 F20C',
+    idle: 950, red: 9000, pulses: 2, gears: 4, q: 4,
+    cut0: 800, cut1: 3000, cutT: 900, cutV: 2200, vtec: 5800,
+    layers: [
+      { type: 'sawtooth', mult: 1, gain: .38 },
+      { type: 'sawtooth', mult: 2, gain: .30, vt: true, vt0: .5 },
+      { type: 'square',   mult: 4, gain: .10, vt: true, vt0: .2, detune: -5 }
+    ],
+    noiseF: 900, noiseK: 2500, noiseG: .08,
+    turbo: 0, blow: false
+  }
+];
+
+class Engine {
+  constructor(profile, vol, pan, delayMs) {
+    const c = ensureAC(), p = this.p = profile;
+    this.vol = vol; this.t0 = performance.now() + (delayMs || 0);
+    this.rpm = 0; this.thr = 0; this.boost = 0; this.vt = 0; this.gear = -1; this.lift = 0; this.dead = false;
+
+    this.master = c.createGain(); this.master.gain.value = 0;
+    if (c.createStereoPanner) {
+      const pn = c.createStereoPanner(); pn.pan.value = pan || 0;
+      pn.connect(bus); this.dest = pn;
+    } else this.dest = bus;
+    this.master.connect(this.dest);
+
+    this.filter = c.createBiquadFilter(); this.filter.type = 'lowpass'; this.filter.Q.value = p.q;
+    this.filter.connect(this.master);
+
+    this.layers = p.layers.map(l => {
+      const o = c.createOscillator(); o.type = l.type; o.detune.value = l.detune || 0; o.frequency.value = 40;
+      const g = c.createGain(); g.gain.value = 0; o.connect(g); g.connect(this.filter); o.start();
+      return { o, g, l };
+    });
+
+    // textura de aire/escape
+    this.noise = c.createBufferSource(); this.noise.buffer = noiseBuf; this.noise.loop = true;
+    this.nBp = c.createBiquadFilter(); this.nBp.type = 'bandpass'; this.nBp.Q.value = .8; this.nBp.frequency.value = p.noiseF;
+    this.nG = c.createGain(); this.nG.gain.value = 0;
+    this.noise.connect(this.nBp); this.nBp.connect(this.nG); this.nG.connect(this.master); this.noise.start();
+
+    // silbido del turbo
+    if (p.turbo) {
+      this.tOsc = c.createOscillator(); this.tOsc.type = 'sine'; this.tOsc.frequency.value = 1800;
+      this.tG = c.createGain(); this.tG.gain.value = 0;
+      this.tOsc.connect(this.tG); this.tG.connect(this.master); this.tOsc.start();
+    }
+  }
+
+  blowOff() {                       // "psssh" del recirculador al soltar acelerador
+    const c = ac, t = c.currentTime;
+    const s = c.createBufferSource(); s.buffer = noiseBuf;
+    const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 1.2;
+    bp.frequency.setValueAtTime(3800, t); bp.frequency.exponentialRampToValueAtTime(1200, t + .45);
+    const g = c.createGain();
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(this.vol * .55, t + .02);
+    g.gain.exponentialRampToValueAtTime(.001, t + .5);
+    s.connect(bp); bp.connect(g); g.connect(this.dest); s.start(t); s.stop(t + .55);
+  }
+
+  drive(now, st, s) {               // st = instante en que este coche arranca (o null)
+    if (this.dead) return;
+    const p = this.p, e0 = (now - this.t0) / 1000;
+    if (e0 < 0) return;
+    let rpm, thr, cranking = false;
+
+    if (st !== null && now >= st) {                       // ---- acelerando: marchas con corte
+      const el = Math.min((now - st) / 1000, CFG.RUN_TIME);
+      const v = Math.min(.9999, el / CFG.RUN_TIME) * p.gears;
+      const g = Math.floor(v), f = v - g;
+      if (g !== this.gear) {
+        if (this.gear >= 0) { this.lift = now + 170; if (p.blow) this.blowOff(); }
+        this.gear = g;
+      }
+      const lo = g === 0 ? .42 : .60;
+      rpm = p.red * (lo + (.985 - lo) * f);
+      thr = now < this.lift ? .05 : 1;
+    } else if (e0 < .55) {                                // ---- arranque: giro del motor de arranque
+      cranking = true; rpm = 220 + 70 * Math.sin(e0 * 55); thr = .05;
+    } else {                                              // ---- enciende, pega un acelerón y se queda al ralentí
+      const k = Math.exp(-(e0 - .55) * 2.5);
+      rpm = p.idle + (p.red * .3 - p.idle) * k + Math.sin(now * .02) * 12;
+      thr = .08 + .4 * k;
+    }
+
+    this.rpm = cranking ? rpm : this.rpm + (rpm - this.rpm) * Math.min(1, s * (this.gear >= 0 ? 14 : 9));
+    this.thr += (thr - this.thr) * Math.min(1, s * 20);
+    const R = this.rpm, T = this.thr;
+    const n = Math.max(0, Math.min(1, (R - p.idle) / (p.red - p.idle)));
+    const t = ac.currentTime, f = R / 60 * p.pulses;
+
+    const vtOn = p.vtec && R > p.vtec ? 1 : 0;           // VTEC: cambio brusco de carácter
+    this.vt += (vtOn - this.vt) * Math.min(1, s * 18);
+
+    this.layers.forEach(({ o, g, l }) => {
+      o.frequency.setTargetAtTime(Math.max(8, f * l.mult), t, .03);
+      const w = l.vt ? l.vt0 + (1 - l.vt0) * this.vt : 1;
+      g.gain.setTargetAtTime(l.gain * w, t, .05);
+    });
+    this.filter.frequency.setTargetAtTime(p.cut0 + p.cut1 * n + p.cutT * T + p.cutV * this.vt, t, .05);
+    this.master.gain.setTargetAtTime(this.vol * (.35 + .65 * T) * (.6 + .4 * n), t, .05);
+    this.nBp.frequency.setTargetAtTime(p.noiseF + p.noiseK * n, t, .05);
+    this.nG.gain.setTargetAtTime(.03 + p.noiseG * T, t, .05);
+
+    if (p.turbo) {
+      const tgt = T * (.2 + .8 * n);
+      this.boost += (tgt - this.boost) * Math.min(1, s * (tgt > this.boost ? 3.5 : 1.6));
+      this.tOsc.frequency.setTargetAtTime(1800 + 3800 * this.boost, t, .06);
+      this.tG.gain.setTargetAtTime(p.turbo * this.boost * this.boost, t, .06);
+    }
+  }
+
+  stop() {                          // apagado suave al terminar la carrera
+    if (this.dead) return; this.dead = true;
+    const t = ac.currentTime;
+    this.master.gain.cancelScheduledValues(t);
+    this.master.gain.setTargetAtTime(0, t, .35);
+    setTimeout(() => {
+      try { this.layers.forEach(x => x.o.stop()); this.noise.stop(); if (this.tOsc) this.tOsc.stop(); } catch (e) {}
+    }, 2500);
+  }
+}
+
+let engines = [];
+function startEngines(i) {          // se llama al hacer click en el coche (gesto del usuario → el audio se permite)
+  try {
+    ensureAC();
+    const pc = new THREE.Vector3(), rc = new THREE.Vector3();
+    playerEl.querySelector('.cockpit').object3D.getWorldPosition(pc);
+    rivalEl.querySelector('.cockpit').object3D.getWorldPosition(rc);
+    const right = new THREE.Vector3(Math.cos(driveYaw), 0, -Math.sin(driveYaw));
+    const pan = Math.max(-.7, Math.min(.7, rc.sub(pc).dot(right) * .15));   // el rival suena por su lado
+    engines = [
+      { eng: new Engine(ENGINE_PROFILES[i],     CFG.VOL_PLAYER, 0,   0),   player: true  },
+      { eng: new Engine(ENGINE_PROFILES[1 - i], CFG.VOL_RIVAL,  pan, 350), player: false }
+    ];
+  } catch (e) { console.warn('Audio no disponible', e); engines = []; }
+}
+function updateEngines(now, s) {
+  engines.forEach(({ eng, player }) => eng.drive(now, player ? playerStart : rivalStart, s));
+}
+
+function showCount(txt, go) {
+  const c = $('count'); c.textContent = txt; c.className = 'ui' + (go ? ' go' : '');
+  void c.offsetWidth; c.classList.add('pop');
+}
+
+/* ---------- Carga ---------- */
+document.querySelectorAll('a-asset-item').forEach(a => a.addEventListener('error', () => {
+  const l = $('loading'); l.className = 'err';
+  l.innerHTML = 'No se pudo cargar <b>' + a.getAttribute('src') + '</b>.<br>Ponlo junto a index.html y abre la página con un servidor local.';
+}));
+$('assets').addEventListener('loaded', () => {
+  $('loading').style.display = 'none';
+  cars.forEach(c => { c.object3D.rotation.y = yaw; basePos.set(c, c.object3D.position.clone()); });
+  state = 'select';
+  setFooter('Haz click en uno de los coches para correr con él');
+});
+
+/* ---------- Elegir coche ---------- */
+cars.forEach((car, i) => {
+  const model = car.querySelector('.clickable');
+  model.addEventListener('mouseenter', () => { if (state === 'select') document.body.style.cursor = 'pointer'; });
+  model.addEventListener('mouseleave', () => document.body.style.cursor = '');
+  model.addEventListener('click', () => {
+    if (state !== 'select') return;
+    document.body.style.cursor = '';
+    playerEl = car; rivalEl = cars[1 - i];
+    startPos.copy(rig.object3D.position);
+    startYaw = rig.object3D.rotation.y;
+    enterT = 0; state = 'entering'; setFooter('');
+    startEngines(i);                 // coche1 → Skyline, coche2 → S2000
+  });
+});
+
+/* ---------- Cuenta atrás ---------- */
+function startCountdown() {
+  state = 'countdown';
+  $('accel').style.display = 'block';
+  setFooter('Cuando salga <b>¡YA!</b> pulsa el botón <b>ACELERAR</b> (o ESPACIO) · Arrastra para mirar alrededor');
+  [3, 2, 1].forEach((n, k) => later(() => { showCount(n); beep(440, .15); }, 600 + k * 1000));
+  const wait = 600 + 3000 + 300 + Math.random() * 900;   // pausa aleatoria tras el "1"
+  later(() => {
+    state = 'go'; goTime = performance.now(); showCount('¡YA!', true); beep(880, .5);
+    rivalStart = goTime + CFG.RIVAL_MIN + Math.random() * (CFG.RIVAL_MAX - CFG.RIVAL_MIN);
+    later(finish, CFG.RUN_TIME * 1000 + 600);
+  }, wait);
+}
+
+/* ---------- Entrada del jugador ---------- */
+function press() {
+  if (state === 'countdown') {            // salida falsa
+    falseStart = true; timers.forEach(clearTimeout); timers = [];
+    state = 'go'; goTime = performance.now();
+    rivalStart = goTime + 600; showCount('¡SALIDA FALSA!'); beep(180, .6);
+    later(finish, CFG.RUN_TIME * 1000 + 600);
+  } else if (state === 'go' && playerStart === null && !falseStart) {
+    playerStart = performance.now();
+  }
+}
+addEventListener('keydown', e => { if (['Space', 'ArrowUp', 'KeyW'].includes(e.code)) { e.preventDefault(); if (!e.repeat) press(); } });
+$('accel').addEventListener('pointerdown', e => { e.preventDefault(); press(); $('accel').classList.add('on'); });
+
+/* ---------- Resultado ---------- */
+function finish() {
+  state = 'done'; setFooter(''); $('accel').style.display = 'none';
+  engines.forEach(x => x.eng.stop());
+  const rivalRT = rivalStart - goTime, playerRT = playerStart === null ? null : playerStart - goTime;
+  let win = false, title;
+  if (falseStart) title = 'SALIDA FALSA';
+  else if (playerRT === null) title = 'DEMASIADO LENTO';
+  else if (playerRT < rivalRT) { win = true; title = '¡GANASTE!'; }
+  else title = 'PERDISTE';
+  const t = $('resTitle'); t.textContent = title; t.style.color = win ? '#3dff6b' : '#ff5a4d';
+  $('resP1').textContent = 'Tu reacción: ' + (playerRT === null ? '—' : (playerRT / 1000).toFixed(3) + ' s');
+  $('resP2').textContent = 'Rival: ' + (falseStart ? '—' : (rivalRT / 1000).toFixed(3) + ' s');
+  $('result').style.display = 'block';
+}
+
+/* ---------- Bucle ---------- */
+AFRAME.registerComponent('race', {
+  tick(time, dt) {
+    const s = Math.min(dt, 50) / 1000, now = performance.now();
+    updateEngines(now, s);
+    if (state === 'entering') {
+      enterT += s / CFG.ENTER_TIME;
+      const k = Math.min(1, enterT), e = k * k * (3 - 2 * k);
+      playerEl.querySelector('.cockpit').object3D.getWorldPosition(tmp);
+      rig.object3D.position.lerpVectors(startPos, tmp, e);
+      // gira desde la vista inicial hasta mirar en la dirección de la carrera (180º)
+      rig.object3D.rotation.y = startYaw + (driveYaw - startYaw) * e;
+      if (k >= 1) startCountdown();
+      return;
+    }
+    if (!playerEl) return;
+    // mover coches
+    let speed = 0;
+    [[playerEl, playerStart], [rivalEl, rivalStart]].forEach(([car, st]) => {
+      if (st === null || now < st) return;
+      const el = Math.min((now - st) / 1000, CFG.RUN_TIME);
+      const d = 0.5 * CFG.ACCEL * el * el;
+      car.object3D.position.copy(basePos.get(car)).addScaledVector(fwd, d);
+      if (car === playerEl) speed = CFG.ACCEL * el;
+    });
+    // cámara pegada al asiento del piloto
+    playerEl.querySelector('.cockpit').object3D.getWorldPosition(tmp);
+    rig.object3D.position.copy(tmp);
+    rig.object3D.rotation.y = driveYaw;
+    const c = cam.getObject3D('camera');
+    if (c) { c.fov = 80 + Math.min(28, speed * 0.5); c.updateProjectionMatrix(); }
+  }
+});
+</script>
+</body>
+</html>
