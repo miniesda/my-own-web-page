@@ -49,7 +49,7 @@
   <button onclick="location.reload()">Otra carrera</button></div></div>
 <div id="footer" class="ui"></div>
 <button id="accel" type="button">Acelerar</button>
-<button id="mute" type="button">♪ Música: on</button>
+<button id="mute" type="button">♪ Música: off</button>
 <audio id="music" loop preload="auto"></audio>
 
 <a-scene race cursor="rayOrigin: mouse" raycaster="objects: .clickable" vr-mode-ui="enabled: false"
@@ -119,7 +119,6 @@ const later = (fn, ms) => timers.push(setTimeout(fn, ms));
 const music = $('music'), muteBtn = $('mute');
 let musicOn = false;
 music.src = CFG.MUSIC; music.volume = CFG.MUSIC_VOL;
-music.addEventListener('error', () => { muteBtn.style.display = 'none'; console.warn('No se encontró la música: ' + CFG.MUSIC); });
 function setMusicVol(v) { music.volume = Math.max(0, Math.min(1, v)); }
 function tryStartMusic() {              // los navegadores exigen un gesto del usuario para reproducir audio
   if (musicOn) return;
