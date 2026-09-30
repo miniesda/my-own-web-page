@@ -36,6 +36,9 @@
     box-shadow:0 0 30px rgba(255,122,0,.7); touch-action:none; user-select:none; -webkit-user-select:none; }
   #accel:active, #accel.on { transform:scale(.94); filter:brightness(1.25); }
   #accel.on { border-color:#3dff6b; box-shadow:0 0 50px #3dff6b; }
+  #mute { position:fixed; top:calc(14px + env(safe-area-inset-top,0px)); right:14px; z-index:30; display:none;
+    font:inherit; font-size:14px; padding:8px 14px; background:rgba(0,0,0,.6); color:var(--yellow); border:2px solid var(--orange);
+    cursor:pointer; text-transform:uppercase; letter-spacing:.08em; font-weight:900; }
 </style>
 </head>
 <body>
@@ -46,6 +49,8 @@
   <button onclick="location.reload()">Otra carrera</button></div></div>
 <div id="footer" class="ui"></div>
 <button id="accel" type="button">Acelerar</button>
+<button id="mute" type="button">♪ Música: on</button>
+<audio id="music" loop preload="auto"></audio>
 
 <a-scene race cursor="rayOrigin: mouse" raycaster="objects: .clickable" vr-mode-ui="enabled: false"
          loading-screen="enabled: false" renderer="antialias: true">
@@ -86,11 +91,14 @@ const CFG = {
   CAR_YAW: 0,        // giro (grados) del wrapper de los coches (deja 0 para no mover el cockpit ni los modelos)
   DRIVE_YAW: 180,    // dirección de la carrera y de la cámara al entrar: 0 = hacia -Z, 180 = hacia +Z, 90 = hacia -X, -90 = hacia +X
   ENTER_TIME: 1.6,   // segundos que tarda la cámara en meterse en el coche
-  ACCEL: 20,         // aceleración (unidades/s²), siempre positiva; la dirección la marca DRIVE_YAW
+  ACCEL: 16,         // aceleración (unidades/s²), siempre positiva; la dirección la marca DRIVE_YAW
   RUN_TIME: 3.5,     // segundos que dura la arrancada
   RIVAL_MIN: 220, RIVAL_MAX: 620,   // reacción del rival en ms
   VOL_PLAYER: 0.55,  // volumen del motor del jugador (0-1)
-  VOL_RIVAL: 0.28    // volumen del motor del rival (0-1)
+  VOL_RIVAL: 0.28,   // volumen del motor del rival (0-1)
+  MUSIC: 'cake-1/RÁPIDOS Y FURIOSOS 2 _ Full Soundtrack Completo _Best Songs _ 2 Fast 2 Furious OST 2001 [xRon1vHLpbc].mp3', // tu archivo de música de fondo (ponlo en esa ruta o cambia el nombre)
+  MUSIC_VOL: 0.6,    // volumen en menús y cuenta atrás
+  MUSIC_VOL_RACE: 0.25 // volumen mientras se corre (más bajo para oír los motores)
 };
 
 const $ = id => document.getElementById(id);
@@ -106,6 +114,24 @@ let goTime = 0, playerStart = null, rivalStart = null, falseStart = false, timer
 
 const setFooter = html => { const f = $('footer'); f.innerHTML = html; f.style.display = html ? 'block' : 'none'; };
 const later = (fn, ms) => timers.push(setTimeout(fn, ms));
+
+/* ---------- Música de fondo ---------- */
+const music = $('music'), muteBtn = $('mute');
+let musicOn = false;
+music.src = CFG.MUSIC; music.volume = CFG.MUSIC_VOL;
+music.addEventListener('error', () => { muteBtn.style.display = 'none'; console.warn('No se encontró la música: ' + CFG.MUSIC); });
+function setMusicVol(v) { music.volume = Math.max(0, Math.min(1, v)); }
+function tryStartMusic() {              // los navegadores exigen un gesto del usuario para reproducir audio
+  if (musicOn) return;
+  music.play().then(() => {
+    musicOn = true; muteBtn.style.display = 'block';
+    removeEventListener('pointerdown', tryStartMusic, true); removeEventListener('keydown', tryStartMusic, true);
+  }).catch(() => {});
+}
+addEventListener('pointerdown', tryStartMusic, true);
+addEventListener('keydown', tryStartMusic, true);
+muteBtn.addEventListener('pointerdown', e => e.stopPropagation());
+muteBtn.addEventListener('click', () => { music.muted = !music.muted; muteBtn.textContent = music.muted ? '♪ Música: off' : '♪ Música: on'; });
 
 /* ---------- Audio ---------- */
 let ac, bus, noiseBuf;
@@ -323,6 +349,7 @@ cars.forEach((car, i) => {
     startPos.copy(rig.object3D.position);
     startYaw = rig.object3D.rotation.y;
     enterT = 0; state = 'entering'; setFooter('');
+    setMusicVol(CFG.MUSIC_VOL * .6);
     startEngines(i);                 // coche1 → Skyline, coche2 → S2000
   });
 });
@@ -335,7 +362,7 @@ function startCountdown() {
   [3, 2, 1].forEach((n, k) => later(() => { showCount(n); beep(440, .15); }, 600 + k * 1000));
   const wait = 600 + 3000 + 300 + Math.random() * 900;   // pausa aleatoria tras el "1"
   later(() => {
-    state = 'go'; goTime = performance.now(); showCount('¡YA!', true); beep(880, .5);
+    state = 'go'; goTime = performance.now(); setMusicVol(CFG.MUSIC_VOL_RACE); showCount('¡YA!', true); beep(880, .5);
     rivalStart = goTime + CFG.RIVAL_MIN + Math.random() * (CFG.RIVAL_MAX - CFG.RIVAL_MIN);
     later(finish, CFG.RUN_TIME * 1000 + 600);
   }, wait);
@@ -345,7 +372,7 @@ function startCountdown() {
 function press() {
   if (state === 'countdown') {            // salida falsa
     falseStart = true; timers.forEach(clearTimeout); timers = [];
-    state = 'go'; goTime = performance.now();
+    state = 'go'; goTime = performance.now(); setMusicVol(CFG.MUSIC_VOL_RACE);
     rivalStart = goTime + 600; showCount('¡SALIDA FALSA!'); beep(180, .6);
     later(finish, CFG.RUN_TIME * 1000 + 600);
   } else if (state === 'go' && playerStart === null && !falseStart) {
@@ -359,6 +386,7 @@ $('accel').addEventListener('pointerdown', e => { e.preventDefault(); press(); $
 function finish() {
   state = 'done'; setFooter(''); $('accel').style.display = 'none';
   engines.forEach(x => x.eng.stop());
+  setMusicVol(CFG.MUSIC_VOL);
   const rivalRT = rivalStart - goTime, playerRT = playerStart === null ? null : playerStart - goTime;
   let win = false, title;
   if (falseStart) title = 'SALIDA FALSA';
