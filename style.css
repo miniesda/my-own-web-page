@@ -7,6 +7,8 @@ body
     background-color: #001a1c;
     font-family: Montserrat,sans-serif;
     color: white;
+    text-align: center;
+    align-items: center;
 }
 a{
   cursor: url("imagenes/cursor-hand.png"),pointer;
@@ -73,6 +75,12 @@ p{
   font-size: 110%;
   margin-right: 5%;
   margin-left: 5%;
+}
+
+table {
+  margin: 0 auto;   /* centers the table */
+  border-collapse: collapse;
+  width: 80%;
 }
 
 td {
