@@ -342,11 +342,11 @@
     AFRAME.registerComponent('pulse-objective', {
       tick() {
         const target = !hint ? 'papiro' : !key ? 'cofre' : 'puerta';
-        const mat = highlights[target];
-        if (!mat) return;
         const mid = (MAX_OPACITY + MIN_OPACITY) / 2;
         const amp = (MAX_OPACITY - MIN_OPACITY) / 2;
-        mat.opacity = mid + Math.sin(Date.now() * 0.002) * amp;
+        for (const [id, mat] of Object.entries(highlights)) {
+          mat.opacity = id === target ? mid + Math.sin(Date.now() * 0.002) * amp : MIN_OPACITY;
+        }
       },
     });
     $('a-scene').setAttribute('pulse-objective', '');
