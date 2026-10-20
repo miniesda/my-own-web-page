@@ -142,7 +142,7 @@
     <a-entity id="puerta" gltf-model="#puertaModel" position="-10 0 5" rotation="0 90 0" class="clickable3"></a-entity>
 
     <a-entity id="rig" position="-2.5 0 2.5" rotation="75 30 12">
-      <a-entity id="cam" camera look-controls="enabled: false">
+      <a-entity id="cam" camera look-controls="enabled: false touchEnabled: true">
         <a-entity cursor="fuse: false; rayOrigin: mouse"
                   raycaster="objects: .clickable1, .clickable2, .clickable3"></a-entity>
       </a-entity>
