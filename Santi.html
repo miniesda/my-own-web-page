@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
+  <style>
+    body { margin: 0; height: 100vh; background: #000; overflow: hidden; }
+
+    #fade {
+      position: fixed; inset: 0; z-index: 9999;
+      background: #000; opacity: 1;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 36px;
+      pointer-events: none;
+    }
+    #title {
+      color: #fff; font: 28px/1.4 Georgia, serif;
+      max-width: 80vw; text-align: center; white-space: pre-line;
+      opacity: 0; transition: opacity 1.2s ease;
+    }
+    #startBtn {
+      font: 20px Georgia, serif; color: #fff; background: transparent;
+      border: 1px solid #fff; padding: 12px 36px; cursor: pointer;
+      opacity: 0; transition: opacity 1.2s ease, background 0.2s, color 0.2s;
+      pointer-events: auto;
+    }
+    #startBtn:hover:not(:disabled) { background: #fff; color: #000; }
+    #startBtn:disabled { opacity: 0.4 !important; cursor: default; }
+
+    #papyrusOverlay {
+      position: fixed; inset: 0; z-index: 10000;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
+    }
+    #papyrusOverlay.open { opacity: 1; pointer-events: auto; }
+
+    .scroll {
+      width: min(540px, 88vw);
+      filter: drop-shadow(0 14px 26px rgba(0, 0, 0, 0.75));
+    }
+
+    .roll {
+      position: relative; z-index: 2; height: 30px; border-radius: 15px;
+      background: linear-gradient(#6a4219, #b8863f 22%, #e9c27a 48%, #c99a52 75%, #6a4219);
+    }
+    .roll::before, .roll::after {
+      content: ""; position: absolute; top: -2px; width: 16px; height: 34px;
+      background: #4f3012;
+    }
+    .roll::before { left: -9px;  clip-path: polygon(100% 0, 100% 100%, 0 55%); }
+    .roll::after  { right: -9px; clip-path: polygon(0 0, 0 100%, 100% 55%); }
+
+    .sheetWrap {
+      height: 0; overflow: hidden; margin: 0 12px;
+      transition: height 1.4s cubic-bezier(.45, 0, .25, 1);
+    }
+
+    .sheet {
+      background:
+        radial-gradient(ellipse at 50% 40%, rgba(255, 220, 140, 0.35), transparent 65%),
+        radial-gradient(ellipse at center, transparent 50%, rgba(90, 50, 10, 0.55) 100%),
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.012 0.02' numOctaves='4' seed='4'/><feColorMatrix values='0 0 0 0 0.45  0 0 0 0 0.28  0 0 0 0 0.08  0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"),
+        linear-gradient(#d6a24e, #bf8434);
+      clip-path: polygon(
+        0% 0%, 100% 0%,
+        100% 7%, 96% 11%, 99% 16%, 95% 22%, 100% 29%, 96% 37%, 99% 44%,
+        94% 51%, 100% 59%, 97% 67%, 99% 73%, 95% 81%, 100% 89%, 97% 95%, 100% 100%,
+        0% 100%,
+        3% 93%, 0% 87%, 4% 79%, 1% 71%, 5% 63%, 0% 56%, 4% 47%, 1% 40%,
+        5% 31%, 0% 24%, 3% 17%, 0% 10%
+      );
+    }
+    .sheetContent {
+      padding: 36px 58px; text-align: center;
+      font: italic 22px/1.5 Georgia, serif; color: #3b2410;
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+    #papyrusOverlay.open .sheetContent { opacity: 1; transition: opacity 0.8s ease 0.9s; }
+    .sheetContent h2 { margin: 0 0 14px; font-size: 28px; }
+    .sheetContent p { margin: 0 0 22px; white-space: pre-line; }
+
+    #papyrusClose {
+      font: 18px Georgia, serif; color: #3b2410; background: transparent;
+      border: 1px solid #3b2410; padding: 8px 26px; cursor: pointer;
+    }
+    #papyrusClose:hover { background: #3b2410; color: #e9c27a; }
+
+    @media (max-width: 600px), (max-height: 520px) {
+      .scroll { width: 92vw; }
+      .roll { height: 20px; border-radius: 10px; }
+      .roll::before, .roll::after { height: 24px; width: 12px; }
+      .sheetWrap { margin: 0 8px; }
+      .sheetContent {
+        padding: 22px 30px;
+        font-size: clamp(12px, min(3.8vw, 4.2vh), 17px);
+        line-height: 1.4;
+      }
+      .sheetContent h2 { font-size: 1.3em; margin-bottom: 8px; }
+      .sheetContent p  { margin-bottom: 14px; }
+      #papyrusClose    { font-size: 15px; padding: 6px 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="fade">
+    <div id="title">Sr Santi, te propongo un juego, despierta y lee el papiro</div>
+    <button id="startBtn" disabled>Cargando...</button>
+  </div>
+
+  <audio id="music" src="cake-1/u_vr5icvkppa-nature-ambience-323729 (mp3cut.net).mp3" loop></audio>
+  <audio id="audio"></audio>
+
+  <div id="papyrusOverlay">
+    <div class="scroll">
+      <div class="roll"></div>
+      <div class="sheetWrap">
+        <div class="sheet">
+          <div class="sheetContent">
+            <h2></h2>
+            <p></p>
+            <button id="papyrusClose">Enrollar</button>
+          </div>
+        </div>
+      </div>
+      <div class="roll"></div>
+    </div>
+  </div>
+
+  <a-scene>
+    <a-assets>
+      <a-asset-item id="sceneModel" src="cake-1/SampleScene.glb"></a-asset-item>
+      <a-asset-item id="papiroModel" src="cake-1/papiro.glb"></a-asset-item>
+      <a-asset-item id="cofreModel" src="cake-1/chest1.glb"></a-asset-item>
+      <a-asset-item id="puertaModel" src="cake-1/puerta.glb"></a-asset-item>
+    </a-assets>
+
+    <a-entity id="scene" gltf-model="#sceneModel" rotation="0 180 0"></a-entity>
+    <a-entity id="papiro" gltf-model="#papiroModel" rotation="0 180 0" class="clickable1"></a-entity>
+    <a-entity id="cofre" gltf-model="#cofreModel" rotation="0 180 0" class="clickable2"></a-entity>
+    <a-entity id="puerta" gltf-model="#puertaModel" position="-10 0 5" rotation="0 90 0" class="clickable3"></a-entity>
+
+    <a-entity id="rig" position="-2.5 0 2.5" rotation="75 30 12">
+      <a-entity id="cam" camera look-controls="enabled: false">
+        <a-entity cursor="fuse: false; rayOrigin: mouse"
+                  raycaster="objects: .clickable1, .clickable2, .clickable3"></a-entity>
+      </a-entity>
+    </a-entity>
+
+    <a-light type="ambient" color="#ffffff" intensity="0.7"></a-light>
+    <a-light type="directional" color="#ffffff" intensity="0.9" position="30 10 -30" target="#scene"></a-light>
+  </a-scene>
+
+  <script>
+    const THREE = AFRAME.THREE;
+    const $ = s => document.querySelector(s);
+
+    const rig = $('#rig');
+    const cam = $('#cam');
+    const fade = $('#fade');
+    const title = $('#title');
+    const startBtn = $('#startBtn');
+
+    // ---- Texts ----
+    const INTRO = [
+      '¡Bienvenido a este reto! Eres un caballero atrapado en una sala y tu misión es encontrar la llave que te permitirá escapar.',
+      'Sigue las pistas guiándote por la luz de la luna, que poco a poco se desvanece al ser eclipsada por el sol.',
+      'Debes darte prisa: has bebido una copa envenenada y el tiempo corre en tu contra.',
+      'Junto a la llave encontrarás una nota con la receta del antídoto que debes preparar para salvarte.',
+      '¡El tiempo corre en tu contra!',
+    ].join('\n');
+
+    const CONFESION = [
+      '¡Encontraste la llave! Pero debo informarte de que no estás envenenado, era una copa de vino normal.',
+      'Quería captar tu atención unos instantes para poder ser sincera contigo. Debo confesar que llevo un tiempo confundida a nivel emocional y sentimental contigo, pero nunca he visto el momento de poder comunicarlo.',
+      'Siento decírtelo, sé que no es algo bidireccional, pero llevaba mucho tiempo con un nudo en la garganta y debía soltarlo.',
+      'Sé que estas no han sido tus mejores semanas, que hay mucho ruido en tu mente, pero no busco que nuestra relación cambie.',
+      'Simplemente busco soltarlo para poder dirigir mis emociones hacia una mera amistad, porque aprecio tu presencia, lo sabes.',
+      'Lo siento, pero quería hacerlo de una forma diferente y que te sacara una sonrisa.',
+    ].join('\n');
+
+    // ---- Wake-up animation ----
+    const FINAL_POS = [-2.5, 1.8, 2.5];
+    const POS = [
+      [0,   [-2.5, 0.0, 2.5]],
+      [3,   [-2.5, 0.0, 2.5]],
+      [5,   [-2.5, 1.0, 2.5]],
+      [7,   [-2.5, 1.4, 2.5]],
+      [9.5, FINAL_POS],
+    ];
+    const ROT = [
+      [0,   [75,  30,  12]],
+      [3,   [75,  30,  12]],
+      [5,   [25, -15,  -4]],
+      [7,   [10,   8,   2]],
+      [9.5, [0,    0,   0]],
+    ];
+    const FADE = [
+      [0, 1], [0.8, 0.35], [1.6, 1], [2.4, 1],
+      [3.4, 0.15], [4.2, 1], [4.8, 1], [6, 0],
+    ];
+    const DURATION = 9.5;
+
+    const ease = k => k * k * (3 - 2 * k);
+
+    function sample(keys, t) {
+      if (t <= keys[0][0]) return keys[0][1];
+      for (let i = 1; i < keys.length; i++) {
+        const [t1, v1] = keys[i], [t0, v0] = keys[i - 1];
+        if (t <= t1) {
+          const k = ease((t - t0) / (t1 - t0));
+          return Array.isArray(v0) ? v0.map((a, j) => a + (v1[j] - a) * k) : v0 + (v1 - v0) * k;
+        }
+      }
+      return keys[keys.length - 1][1];
+    }
+
+    function playWakeUp() {
+      $('#music').play();
+      const start = performance.now();
+
+      (function frame(now) {
+        const t = (now - start) / 1000;
+        const [px, py, pz] = sample(POS, t);
+        const [rx, ry, rz] = sample(ROT, t).map(THREE.MathUtils.degToRad);
+        rig.object3D.position.set(px, py, pz);
+        rig.object3D.rotation.set(rx, ry, rz);
+        fade.style.opacity = sample(FADE, t);
+
+        if (t < DURATION) return requestAnimationFrame(frame);
+
+        rig.setAttribute('position', { x: FINAL_POS[0], y: FINAL_POS[1], z: FINAL_POS[2] });
+        rig.setAttribute('rotation', { x: 0, y: 0, z: 0 });
+        fade.style.opacity = 0;
+        cam.setAttribute('look-controls', 'enabled', true);
+      })(start);
+    }
+
+    // ---- Intro ----
+    requestAnimationFrame(() => {
+      title.style.opacity = 1;
+      startBtn.style.opacity = 1;
+    });
+
+    const enableButton = () => {
+      startBtn.disabled = false;
+      startBtn.textContent = 'Empezar';
+    };
+
+    const sceneEl = $('#scene');
+    if (sceneEl.getObject3D('mesh')) enableButton();
+    else sceneEl.addEventListener('model-loaded', enableButton, { once: true });
+
+    startBtn.addEventListener('click', () => {
+      if (startBtn.disabled) return;
+      startBtn.disabled = true;
+      startBtn.style.pointerEvents = 'none';
+      setTimeout(() => { startBtn.remove(); title.remove(); }, 200);
+      setTimeout(playWakeUp, 1500);
+    });
+
+    // ---- Papyrus ----
+    const overlay = $('#papyrusOverlay');
+    const sheetWrap = $('.sheetWrap');
+    const sheet = $('.sheet');
+    const audio = $('#audio');
+
+    const fitPapyrus = () => {
+      if (!overlay.classList.contains('open')) return;
+      sheetWrap.style.height = Math.min(sheet.scrollHeight, innerHeight - 90) + 'px';
+    };
+
+    const openPapyrus = (heading, text, sound) => {
+      audio.src = sound;
+      audio.play();
+      $('.sheetContent h2').textContent = heading;
+      $('.sheetContent p').textContent = text;
+      overlay.classList.add('open');
+      sheetWrap.style.overflowY = 'auto';
+      requestAnimationFrame(() => requestAnimationFrame(fitPapyrus));
+    };
+
+    const closePapyrus = () => {
+      overlay.classList.remove('open');
+      sheetWrap.style.height = '0px';
+    };
+
+    new ResizeObserver(fitPapyrus).observe(sheet);
+    document.fonts?.ready.then(fitPapyrus);
+    addEventListener('resize', fitPapyrus);
+
+    $('#papyrusClose').addEventListener('click', closePapyrus);
+    overlay.addEventListener('click', e => { if (e.target === overlay) closePapyrus(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closePapyrus(); });
+
+    // ---- Game state ----
+    let hint = false;
+    let key = false;
+
+    $('.clickable1').addEventListener('click', () => {
+      openPapyrus('Graves Noticias, Sr Santi', INTRO,
+        'cake-1/freesound_community-creasing-paper-92362 (mp3cut.net).mp3');
+      hint = true;
+    });
+
+    $('.clickable2').addEventListener('click', () => {
+      if (!hint) return;
+      openPapyrus('Confesión', CONFESION,
+        'cake-1/universfield-old-wooden-door-402153 (mp3cut.net).mp3');
+      key = true;
+    });
+
+    $('.clickable3').addEventListener('click', () => {
+      if (!key) return;
+      const end = document.createElement('div');
+      end.id = 'title';
+      end.style.opacity = 1;
+      end.textContent = '¡Felicidades!\nHas completado el reto, Sr Santi';
+      fade.style.opacity = 1;
+      fade.appendChild(end);
+    });
+
+    // ---- Pulsing highlight on the current objective ----
+    const MIN_OPACITY = 0;
+    const MAX_OPACITY = 0.5;
+    const highlights = {};
+
+    ['papiro', 'cofre', 'puerta'].forEach(id => {
+      const el = $('#' + id);
+      el.addEventListener('model-loaded', () => {
+        el.object3D.traverse(obj => {
+          if (obj.isMesh && obj.material.name === 'Material.001') {
+            obj.material.transparent = true;
+            obj.material.opacity = MIN_OPACITY;
+            highlights[id] = obj.material;
+          }
+        });
+      });
+    });
+
+    AFRAME.registerComponent('pulse-objective', {
+      tick() {
+        const target = !hint ? 'papiro' : !key ? 'cofre' : 'puerta';
+        const mat = highlights[target];
+        if (!mat) return;
+        const mid = (MAX_OPACITY + MIN_OPACITY) / 2;
+        const amp = (MAX_OPACITY - MIN_OPACITY) / 2;
+        mat.opacity = mid + Math.sin(Date.now() * 0.002) * amp;
+      },
+    });
+    $('a-scene').setAttribute('pulse-objective', '');
+  </script>
+</body>
+</html>
