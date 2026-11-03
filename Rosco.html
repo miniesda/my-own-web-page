@@ -1,0 +1,716 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Rosco Bíblico</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Figtree:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+/* Layout: the 25-letter ring on the left, the host panel (clue and three marking buttons) on the right; stacked on phones. */
+:root {
+  --bg: #edf0f7;
+  --surface: #ffffff;
+  --fg: #141a3a;
+  --muted: #565e82;
+  --line: #c9d0e4;
+  --tile: #dde3f6;
+  --accent: #2f4bff;
+  --on-accent: #ffffff;
+  --ok: #0f8a5f;
+  --on-ok: #ffffff;
+  --bad: #d6334a;
+  --on-bad: #ffffff;
+  --pass: #b86f00;
+  --font-display: "Unbounded", "Trebuchet MS", system-ui, sans-serif;
+  --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c1030;
+    --surface: #151a45;
+    --fg: #eef1ff;
+    --muted: #9aa3d1;
+    --line: #2b3270;
+    --tile: #1f2662;
+    --accent: #7f95ff;
+    --on-accent: #0c1030;
+    --ok: #3dd6a0;
+    --on-ok: #062a1d;
+    --bad: #ff6b81;
+    --on-bad: #3a0510;
+    --pass: #ffb547;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c1030;
+  --surface: #151a45;
+  --fg: #eef1ff;
+  --muted: #9aa3d1;
+  --line: #2b3270;
+  --tile: #1f2662;
+  --accent: #7f95ff;
+  --on-accent: #0c1030;
+  --ok: #3dd6a0;
+  --on-ok: #062a1d;
+  --bad: #ff6b81;
+  --on-bad: #3a0510;
+  --pass: #ffb547;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  padding-block: 24px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1100px; margin: 0 auto; display: grid; gap: 24px; }
+header { display: grid; gap: 4px; }
+.eyebrow {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(26px, 5vw, 40px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.game { display: grid; gap: 24px; grid-template-columns: minmax(0, 1fr); align-items: center; }
+@media (min-width: 900px) {
+  .game { grid-template-columns: minmax(0, 560px) minmax(0, 1fr); gap: 48px; }
+}
+
+/* Ring */
+.ring {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  aspect-ratio: 1;
+  margin: 0 auto;
+  container-type: inline-size;
+}
+.tile {
+  position: absolute;
+  width: 9.8%;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--tile);
+  border: 2px solid var(--line);
+  color: var(--fg);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 4cqw;
+  transform: translate(-50%, -50%) scale(var(--s, 1));
+  transition: transform 0.18s ease, background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+  user-select: none;
+}
+.tile.ok { background: var(--ok); border-color: var(--ok); color: var(--on-ok); }
+.tile.bad { background: var(--bad); border-color: var(--bad); color: var(--on-bad); }
+.tile.pass { border-color: var(--pass); color: var(--pass); border-style: dashed; }
+.tile.cur {
+  --s: 1.28;
+  z-index: 2;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+  box-shadow: 0 0 0 4px var(--bg), 0 0 0 6px var(--accent);
+}
+.core {
+  position: absolute;
+  inset: 17%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2cqw;
+  text-align: center;
+}
+.timer {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 15cqw;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+.timer.low { color: var(--bad); }
+.timer.paused { opacity: 0.45; }
+.stats {
+  display: flex;
+  gap: 3cqw;
+  font-family: var(--font-mono);
+  font-size: 3.6cqw;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+.stats b { font-weight: 500; }
+.stats .s-ok b { color: var(--ok); }
+.stats .s-bad b { color: var(--bad); }
+.stats .s-left b { color: var(--fg); }
+.start {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  border-radius: 999px;
+  padding: 2.4cqw 6cqw;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 4.4cqw;
+}
+
+/* Host panel */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 24px;
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+.clue { display: flex; gap: 18px; align-items: flex-start; }
+.badge {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 30px;
+}
+.clue p {
+  margin: 0;
+  font-size: clamp(19px, 2.2vw, 26px);
+  line-height: 1.35;
+  min-width: 0;
+  text-wrap: pretty;
+}
+.actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.b {
+  cursor: pointer;
+  padding: 20px 8px;
+  border-radius: 14px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(13px, 1.6vw, 17px);
+  border: 2px solid transparent;
+  overflow-wrap: anywhere;
+}
+.b.ok { background: var(--ok); color: var(--on-ok); }
+.b.bad { background: var(--bad); color: var(--on-bad); }
+.b.pass { background: transparent; color: var(--pass); border-color: var(--pass); }
+.b:disabled { opacity: 0.4; cursor: not-allowed; }
+button { font: inherit; }
+button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 480px) {
+  .actions { grid-template-columns: 1fr; }
+  .b { padding: 16px 8px; }
+}
+.reveal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+  min-height: 2.4em;
+}
+.reveal output {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 18px;
+  color: var(--accent);
+}
+.feedback { margin: 0; min-height: 3em; font-size: 16px; color: var(--muted); }
+.feedback.ok { color: var(--ok); }
+.feedback.bad { color: var(--bad); }
+.feedback .ref { color: var(--muted); }
+.summary h2 {
+  margin: 0 0 10px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 500;
+}
+.chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
+.chips li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px 6px 6px;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  min-width: 0;
+}
+.chips .c {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--bad);
+  color: var(--on-bad);
+}
+.chips .c.left { background: transparent; border: 2px dashed var(--pass); color: var(--pass); }
+.chips .w { overflow-wrap: anywhere; }
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+  color: var(--muted);
+}
+.foot .grow { flex: 1 1 auto; }
+.keys { font-family: var(--font-mono); font-size: 12px; }
+.link {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 4px 0;
+  cursor: pointer;
+  color: var(--accent);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.link:disabled { opacity: 0.4; cursor: not-allowed; text-decoration: none; }
+@media (max-width: 480px) {
+  .panel { padding: 18px; }
+  .badge { width: 52px; height: 52px; font-size: 24px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tile { transition: none; }
+}
+</style>
+
+<main class="wrap">
+  <header>
+    <p class="eyebrow">Pasapalabra · 25 letras · modo presentador</p>
+    <h1>Rosco bíblico</h1>
+  </header>
+
+  <div class="game">
+    <section class="ring" id="ring" aria-label="Rosco de 25 letras">
+      <div class="core">
+        <div class="timer" id="timer" aria-live="off">5:00</div>
+        <div class="stats">
+          <span class="s-ok"><b id="nOk">0</b> aciertos</span>
+          <span class="s-bad"><b id="nBad">0</b> fallos</span>
+          <span class="s-left"><b id="nLeft">25</b> por jugar</span>
+        </div>
+        <button type="button" class="start" id="btnStart">Empezar</button>
+      </div>
+    </section>
+
+    <section class="panel" aria-label="Pregunta actual">
+      <div class="clue">
+        <span class="badge" id="badge" aria-hidden="true">A</span>
+        <p id="clueText">Lee la pista en voz alta, el concursante responde y tú marcas: Acierto, Fallo o Pasapalabra. Las letras pasadas vuelven en la siguiente vuelta.</p>
+      </div>
+      <div class="actions">
+        <button type="button" class="b ok" id="btnOk" disabled>Acierto</button>
+        <button type="button" class="b bad" id="btnBad" disabled>Fallo</button>
+        <button type="button" class="b pass" id="btnPass" disabled>Pasapalabra</button>
+      </div>
+      <div class="reveal">
+        <button type="button" class="link" id="btnReveal" disabled>Ver respuesta</button>
+        <output id="revealText" hidden></output>
+        <button type="button" class="link" id="btnSpeak" disabled>Leer la pista en voz alta</button>
+      </div>
+      <p class="feedback" id="feedback" role="status" aria-live="polite">Atajos: flecha derecha acierto, flecha izquierda fallo, flecha abajo pasapalabra, R ver respuesta.</p>
+      <div class="summary" id="summary" hidden>
+        <h2>Para repasar</h2>
+        <ul class="chips" id="chips"></ul>
+      </div>
+      <div class="foot">
+        <span class="grow">Mejor marca: <strong id="best">sin marca</strong></span>
+        <span class="keys" id="padState">Mando: pulsa un botón para detectarlo</span>
+        <button type="button" class="link" id="btnPause" disabled>Pausar</button>
+        <button type="button" class="link" id="btnReset">Reiniciar</button>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+(function () {
+  var ITEMS = [
+    { l: 'A', q: 'Empieza por A: Primer hombre, creado por Dios según el Génesis.', a: 'Adán', ref: 'Génesis 2' },
+    { l: 'B', q: 'Empieza por B: Preso que el pueblo eligió liberar en lugar de Jesús.', a: 'Barrabás', ref: 'Mateo 27' },
+    { l: 'C', q: 'Empieza por C: Hijo de Adán y Eva que mató a su hermano Abel.', a: 'Caín', ref: 'Génesis 4' },
+    { l: 'D', q: 'Empieza por D: Joven pastor que derrotó a Goliat con una honda.', a: 'David', ref: '1 Samuel 17' },
+    { l: 'E', q: 'Empieza por E: Primera mujer, formada de una costilla de Adán.', a: 'Eva', ref: 'Génesis 2' },
+    { l: 'F', q: 'Empieza por F: Apóstol de Betsaida que presentó a Natanael a Jesús.', a: 'Felipe', ref: 'Juan 1' },
+    { l: 'G', q: 'Empieza por G: Gigante filisteo de Gat vencido por David.', a: 'Goliat', ref: '1 Samuel 17' },
+    { l: 'H', q: 'Empieza por H: Rey que ordenó la matanza de los niños de Belén.', a: 'Herodes', ref: 'Mateo 2' },
+    { l: 'I', q: 'Empieza por I: Hijo de Abraham y Sara, a quien casi sacrifica su padre.', a: 'Isaac', ref: 'Génesis 22' },
+    { l: 'J', q: 'Empieza por J: Apóstol que entregó a Jesús por treinta monedas de plata.', a: 'Judas', ref: 'Mateo 26' },
+    { l: 'K', q: 'Contiene la K: Juez que acompañó a la profetisa Débora a la batalla.', a: 'Barak', ref: 'Jueces 4' },
+    { l: 'L', q: 'Empieza por L: Hermano de Marta y María, resucitado por Jesús.', a: 'Lázaro', ref: 'Juan 11' },
+    { l: 'M', q: 'Empieza por M: Guió al pueblo hebreo fuera de Egipto y recibió las tablas de la Ley.', a: 'Moisés', ref: 'Éxodo 3' },
+    { l: 'N', q: 'Empieza por N: Construyó un arca para sobrevivir al diluvio.', a: 'Noé', ref: 'Génesis 6' },
+    { l: 'O', q: 'Empieza por O: Profeta casado con Gómer, cuyo matrimonio simbolizó el amor de Dios por Israel.', a: 'Oseas', ref: 'Oseas 1' },
+    { l: 'P', q: 'Empieza por P: Antes llamado Saulo, es conocido como el apóstol de los gentiles.', a: 'Pablo', ref: 'Hechos 13' },
+    { l: 'Q', q: 'Contiene la Q: Profeta que vio el valle de los huesos secos.', a: 'Ezequiel', ref: 'Ezequiel 37' },
+    { l: 'R', q: 'Empieza por R: Moabita que permaneció fiel a su suegra Noemí.', a: 'Rut', ref: 'Rut 1' },
+    { l: 'S', q: 'Empieza por S: Juez de Israel cuya fuerza estaba en su cabello.', a: 'Sansón', ref: 'Jueces 16' },
+    { l: 'T', q: 'Empieza por T: Apóstol que no creyó en la resurrección hasta ver las heridas de Jesús.', a: 'Tomás', ref: 'Juan 20' },
+    { l: 'U', q: 'Empieza por U: Soldado hitita al que David mandó a morir para quedarse con su esposa Betsabé.', a: 'Urías', ref: '2 Samuel 11' },
+    { l: 'V', q: 'Contiene la V: Hijo de Jacob y Lea, antepasado de la tribu sacerdotal.', a: 'Leví', ref: 'Génesis 29' },
+    { l: 'X', q: 'Contiene la X: Gobernador romano ante el que Pablo fue juzgado en Cesarea.', a: 'Félix', ref: 'Hechos 24' },
+    { l: 'Y', q: 'Contiene la Y: Compañero de Pablo que aparece en las cartas de Juan y en Hechos.', a: 'Gayo', ref: '3 Juan 1' },
+    { l: 'Z', q: 'Empieza por Z: Recaudador de impuestos de Jericó que se subió a un sicómoro para ver a Jesús.', a: 'Zaqueo', ref: 'Lucas 19' }
+  ];
+  var TOTAL = ITEMS.length;
+  var DURATION = 300; // seconds
+  var BEST_KEY = 'rosco-biblico-mejor';
+
+  // status: 0 pending, 1 correct, 2 wrong, 3 passed
+  var status, cur, running, paused, ended, endAt, remainMs, timerId, tiles = [];
+
+  var $ = function (id) { return document.getElementById(id); };
+  var ring = $('ring'), timerEl = $('timer'), nOk = $('nOk'), nBad = $('nBad'), nLeft = $('nLeft');
+  var btnStart = $('btnStart'), badge = $('badge'), clueText = $('clueText');
+  var btnOk = $('btnOk'), btnBad = $('btnBad'), btnPass = $('btnPass');
+  var btnReveal = $('btnReveal'), revealText = $('revealText'), btnSpeak = $('btnSpeak');
+  var feedback = $('feedback'), summary = $('summary'), chips = $('chips');
+  var bestEl = $('best'), btnReset = $('btnReset'), btnPause = $('btnPause');
+
+  var INTRO = clueText.textContent;
+  var HINT = feedback.textContent;
+  var canSpeak = false;
+  try { canSpeak = 'speechSynthesis' in window && typeof SpeechSynthesisUtterance === 'function'; } catch (e) {}
+  if (!canSpeak) btnSpeak.hidden = true;
+
+  function buildRing() {
+    var coreEl = ring.querySelector('.core');
+    for (var i = 0; i < TOTAL; i++) {
+      var ang = (-90 + (i * 360) / TOTAL) * Math.PI / 180;
+      var t = document.createElement('div');
+      t.className = 'tile';
+      t.textContent = ITEMS[i].l;
+      t.style.left = (50 + 44.6 * Math.cos(ang)) + '%';
+      t.style.top = (50 + 44.6 * Math.sin(ang)) + '%';
+      ring.insertBefore(t, coreEl);
+      tiles.push(t);
+    }
+  }
+
+  function readBest() {
+    try { var v = localStorage.getItem(BEST_KEY); return v === null ? null : parseInt(v, 10); } catch (e) { return null; }
+  }
+  function writeBest(n) {
+    try { localStorage.setItem(BEST_KEY, String(n)); } catch (e) {}
+  }
+  function showBest() {
+    var b = readBest();
+    bestEl.textContent = (b === null || isNaN(b)) ? 'sin marca' : b + ' de ' + TOTAL;
+  }
+
+  function fmt(sec) {
+    var m = Math.floor(sec / 60), s = sec % 60;
+    return m + ':' + (s < 10 ? '0' : '') + s;
+  }
+
+  function counts() {
+    var ok = 0, bad = 0, left = 0;
+    for (var i = 0; i < TOTAL; i++) {
+      if (status[i] === 1) ok++;
+      else if (status[i] === 2) bad++;
+      else left++;
+    }
+    return { ok: ok, bad: bad, left: left };
+  }
+
+  function render() {
+    for (var i = 0; i < TOTAL; i++) {
+      var cls = 'tile';
+      if (status[i] === 1) cls += ' ok';
+      else if (status[i] === 2) cls += ' bad';
+      else if (status[i] === 3) cls += ' pass';
+      if (i === cur && running) cls += ' cur';
+      tiles[i].className = cls;
+    }
+    var c = counts();
+    nOk.textContent = c.ok;
+    nBad.textContent = c.bad;
+    nLeft.textContent = c.left;
+  }
+
+  function hideReveal() {
+    revealText.hidden = true;
+    revealText.textContent = '';
+    btnReveal.textContent = 'Ver respuesta';
+  }
+
+  function stopSpeech() {
+    if (canSpeak) { try { window.speechSynthesis.cancel(); } catch (e) {} }
+  }
+
+  function showClue() {
+    hideReveal();
+    stopSpeech();
+    if (cur >= 0 && running) {
+      badge.textContent = ITEMS[cur].l;
+      clueText.textContent = ITEMS[cur].q;
+    }
+  }
+
+  function setControls(on) {
+    btnOk.disabled = !on; btnBad.disabled = !on; btnPass.disabled = !on;
+    btnReveal.disabled = !on; btnSpeak.disabled = !on;
+  }
+
+  function nextIndex(from) {
+    for (var k = 1; k <= TOTAL; k++) {
+      var j = (from + k) % TOTAL;
+      if (status[j] === 0 || status[j] === 3) return j;
+    }
+    return -1;
+  }
+
+  function setFeedback(text, kind, ref) {
+    feedback.className = 'feedback' + (kind ? ' ' + kind : '');
+    feedback.textContent = text;
+    if (ref) {
+      var s = document.createElement('span');
+      s.className = 'ref';
+      s.textContent = ' · ' + ref;
+      feedback.appendChild(s);
+    }
+  }
+
+  function tick() {
+    var rem = Math.max(0, endAt - Date.now());
+    var secs = Math.ceil(rem / 1000);
+    timerEl.textContent = fmt(secs);
+    timerEl.className = 'timer' + (secs <= 30 ? ' low' : '');
+    if (rem <= 0) finish('time');
+  }
+
+  function start() {
+    status = []; for (var i = 0; i < TOTAL; i++) status.push(0);
+    running = true; paused = false; ended = false; cur = 0;
+    endAt = Date.now() + DURATION * 1000;
+    btnStart.hidden = true;
+    summary.hidden = true;
+    setControls(true);
+    btnPause.disabled = false; btnPause.textContent = 'Pausar';
+    setFeedback(HINT, '');
+    tick();
+    clearInterval(timerId);
+    timerId = setInterval(tick, 250);
+    render(); showClue();
+  }
+
+  function advance() {
+    var n = nextIndex(cur);
+    if (n === -1) { finish('done'); return; }
+    cur = n;
+    render(); showClue();
+  }
+
+  function mark(kind) {
+    if (!running || paused) return;
+    var it = ITEMS[cur];
+    if (kind === 'ok') {
+      status[cur] = 1;
+      setFeedback('Acierto: ' + it.a, 'ok', it.ref);
+    } else if (kind === 'bad') {
+      status[cur] = 2;
+      setFeedback('Fallo. Era ' + it.a, 'bad', it.ref);
+    } else {
+      status[cur] = 3;
+      setFeedback('Pasapalabra. La ' + it.l + ' vuelve en la siguiente vuelta.', '');
+    }
+    advance();
+  }
+
+  function toggleReveal() {
+    if (!running || paused) return;
+    if (revealText.hidden) {
+      revealText.textContent = ITEMS[cur].a;
+      revealText.hidden = false;
+      btnReveal.textContent = 'Ocultar respuesta';
+    } else {
+      hideReveal();
+    }
+  }
+
+  function speak() {
+    if (!running || paused || !canSpeak) return;
+    try {
+      var s = window.speechSynthesis;
+      s.cancel();
+      var u = new SpeechSynthesisUtterance(ITEMS[cur].q);
+      u.lang = 'es-ES';
+      u.rate = 0.95;
+      s.speak(u);
+    } catch (e) {}
+  }
+
+  function togglePause() {
+    if (!running) return;
+    if (!paused) {
+      paused = true;
+      remainMs = Math.max(0, endAt - Date.now());
+      clearInterval(timerId);
+      timerEl.className = 'timer paused';
+      btnPause.textContent = 'Reanudar';
+      setControls(false);
+      hideReveal();
+      stopSpeech();
+    } else {
+      paused = false;
+      endAt = Date.now() + remainMs;
+      btnPause.textContent = 'Pausar';
+      setControls(true);
+      tick();
+      timerId = setInterval(tick, 250);
+    }
+  }
+
+  function finish(reason) {
+    running = false; paused = false; ended = true;
+    clearInterval(timerId);
+    stopSpeech();
+    hideReveal();
+    setControls(false);
+    btnPause.disabled = true; btnPause.textContent = 'Pausar';
+    btnStart.hidden = false;
+    btnStart.textContent = 'Jugar otra vez';
+    var c = counts();
+    var head = reason === 'time' ? 'Se acabó el tiempo.' : (c.ok === TOTAL ? 'Rosco completo sin un fallo.' : 'Rosco terminado.');
+    badge.textContent = c.ok;
+    clueText.textContent = head + ' ' + c.ok + ' aciertos de ' + TOTAL + ', ' + c.bad + ' fallos y ' + c.left + ' sin responder.';
+    setFeedback('', '');
+    chips.textContent = '';
+    var shown = 0;
+    for (var i = 0; i < TOTAL; i++) {
+      if (status[i] === 1) continue;
+      var li = document.createElement('li');
+      var c1 = document.createElement('span');
+      c1.className = 'c' + (status[i] === 2 ? '' : ' left');
+      c1.textContent = ITEMS[i].l;
+      var w = document.createElement('span');
+      w.className = 'w';
+      w.textContent = ITEMS[i].a;
+      li.appendChild(c1); li.appendChild(w);
+      chips.appendChild(li);
+      shown++;
+    }
+    summary.hidden = shown === 0;
+    var best = readBest();
+    if (best === null || isNaN(best) || c.ok > best) { writeBest(c.ok); }
+    showBest();
+    render();
+    cur = -1;
+  }
+
+  function reset() {
+    clearInterval(timerId);
+    stopSpeech();
+    status = []; for (var i = 0; i < TOTAL; i++) status.push(0);
+    running = false; paused = false; ended = false; cur = -1;
+    timerEl.textContent = fmt(DURATION);
+    timerEl.className = 'timer';
+    btnStart.hidden = false;
+    btnStart.textContent = 'Empezar';
+    setControls(false);
+    btnPause.disabled = true; btnPause.textContent = 'Pausar';
+    hideReveal();
+    summary.hidden = true;
+    badge.textContent = 'A';
+    clueText.textContent = INTRO;
+    setFeedback(HINT, '');
+    render();
+  }
+
+  btnOk.addEventListener('click', function () { mark('ok'); });
+  btnBad.addEventListener('click', function () { mark('bad'); });
+  btnPass.addEventListener('click', function () { mark('pass'); });
+  btnReveal.addEventListener('click', toggleReveal);
+  btnSpeak.addEventListener('click', speak);
+  btnPause.addEventListener('click', togglePause);
+  btnStart.addEventListener('click', start);
+  btnReset.addEventListener('click', reset);
+
+  document.addEventListener('keydown', function (e) {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.key === 'ArrowRight') { e.preventDefault(); mark('ok'); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); mark('bad'); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); mark('pass'); }
+    else if (e.key === 'r' || e.key === 'R') { toggleReveal(); }
+  });
+
+  // Gamepad: A acierto, B fallo, X pasapalabra, Y ver respuesta (mando con mapeo estándar).
+  var padState = $('padState');
+  var padPrev = {};
+  var padLoop = null;
+
+  function padPoll() {
+    var pads = [];
+    try { pads = navigator.getGamepads ? navigator.getGamepads() : []; } catch (e) {}
+    var any = false;
+    for (var i = 0; i < pads.length; i++) {
+      var gp = pads[i];
+      if (!gp) continue;
+      any = true;
+      var now = [];
+      for (var b = 0; b < 4; b++) now[b] = !!(gp.buttons[b] && gp.buttons[b].pressed);
+      var prev = padPrev[gp.index];
+      if (prev) {
+        // Only react to a new press, not to a button that stays held.
+        if (now[0] && !prev[0]) mark('ok');
+        if (now[1] && !prev[1]) mark('bad');
+        if (now[2] && !prev[2]) mark('pass');
+        if (now[3] && !prev[3]) toggleReveal();
+      }
+      padPrev[gp.index] = now;
+    }
+    padLoop = any ? requestAnimationFrame(padPoll) : null;
+  }
+
+  window.addEventListener('gamepadconnected', function (e) {
+    padState.textContent = 'Mando conectado: A acierto, B fallo, X pasapalabra, Y respuesta';
+    if (padLoop === null) padLoop = requestAnimationFrame(padPoll);
+  });
+  window.addEventListener('gamepaddisconnected', function (e) {
+    delete padPrev[e.gamepad.index];
+    padState.textContent = 'Mando desconectado';
+  });
+
+  buildRing();
+  showBest();
+  reset();
+})();
+</script>
+
+</body></html>
